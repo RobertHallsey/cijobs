@@ -1,0 +1,132 @@
+<h1>Job Board Scraper, a CodeIgniter 3.0 application.</h1>
+
+<h2>User Documentation</h2>
+
+<p>Having installed the application in CodeIgniter, you are ready to use it. Run the application in one browser tab, and in another tab, open indeed.com or simplyhire.com. Once there, run a search for the jobs your want. You don't need to save the search. The website will respond with the first page of your search results. Ignore them and look at the address bar. That is the URL you will use for this search. Copy it to the clipboard and move to the tab where you're running Job Board Scraper.</p>
+
+<p>Fill out the form under Add a New Search. Give the search you're about to save a meaningful name, and select whether it's an Indeed or a Simply Hired search. Then paste the URL you copied to the clipboard into the Search URL field. Click Ok to save the search and watch it appear in the list of saved searches. You can now edit it or delete it by clicking the links to the right of the saved search.</p>
+
+<p>You can also execute the search. When you do so, the application will process for a few seconds and then a CSV file with the name of your search will download. This should not take more than a few seconds, no longer than it would take to download the individual web pages in the search. The web pages are not particularly large, so with high-speed internet, even ten seconds is enough to download hundreds of jobs. Again, please don't run the application carelessly or abusively, though I imagine both websites have measures to prevent abusive downloading.</p>
+
+<h2>Technical Documentation</h2>
+
+<h3>Controllers</h3>
+
+<p>The application has one controller, Searches.php. The controller's constructor loads what it needs, including the sites and saved searches from the database. There is no pagination mechanism for the data because the application is not intended to support a large number of searches or sites.</p>
+
+<p>The controller has four methods: index, edit, delete, and execute. The index method performs the add function.</p>
+
+<p>The index method sets form validation rules and then tests for a successful form validation. If the form validates successfully, it means it was submitted with all its fields completed, so the data is saved to the database and the application redirects to itself. From the user's point, the screen refreshes to include the added search. If the form does not validate, it means that either the form hasn't yet been presented to the user, or that the user has submitted an incomplete form. Either way, the method loads into an array the information the view will need and invokes the view.</p>
+
+<p>The edit method is called with the ID of the search to edit. This ID is encoded in the URL the user clicks to invoke the method, and this will be explained in the View section. Once the method has the ID and retrieves the search from the database, it starts looking like the index method. It sets form validations, tests for valid form, and then either saves the edited search or refreshes the screen.</p>
+
+<p>The delete method also must be given the ID of the search to delete, but it performs no form validation. It's not necessary since the only question is whether to delete the search or not, so the method instead tests to see if the form was submitted at all. This is the test that does that: <code>if ($this->input->server('REQUEST_METHOD') == 'POST')</code>. If the form was submitted, if the user pressed OK, the search is deleted and the screen refreshes, no longer showing the deleted search.</p>
+
+<p>The execute method involves no view. The method loads the search and then loads from the application's library the class that will execute the search. It then executes the search, downloads the resulting file, and refreshes the screen. Notice that the method executes the search using a variable reference. You may have so far seen only direct references, like <code>$this->customer_model->get_rows()</code>, but PHP allows you to put "customer_model" into a variable <code>$foo</code> and then invoke the method with <code>$this->$foo->get_rows()</code>. Finally, <code>force_download()</code> is a CodeIgniter helper function.</p>
+
+<h3>Views</h3>
+
+<p>The application has only one view, <code>searches_view.php</code>, which is constructed from several parts. The view itself invokes other views, including <code>header.php</code> at the very start and <code>footer.php</code> at the very end. The technique of separating header and footer code into their own files is particularly useful when you have more than one view because then you don't repeat header and footer code in every view.</p>
+
+<p>The view is invoked with an array that passes this data.</p>
+
+<p><pre><code>
+	$data = array(
+		'subview' => 'search_add_view',
+		'sites' => $this->sites,
+		'searches' => $this->searches,
+		'search' => $search
+	);
+	$this->load->view('searches_view', $data);
+</code></pre></p>
+
+<p>The elements in the <code>$data</code> array are extracted as variables in searches_view.php. If there are any saved searches, the method builds a table from them, including hyperlinks to edit, delete, and execute each one. That happens in this code.</p>
+
+<p><pre><code>
+	if (count($searches))
+	{
+		$this->table->set_heading('Search Name', 'Job Site', 'Search URL',	'Edit', 'Delete', 'Execute');
+		foreach ($searches as $search)
+		{
+			$this->table->add_row(
+				$search['name'], $search['site_name'], $search['url'],
+				anchor('searches/edit/' . $search['id'], 'Edit'), 
+				anchor('searches/delete/' . $search['id'], 'Delete'),
+				anchor('searches/execute/' . $search['id'], 'Execute'));
+		}
+		echo $this->table->generate();
+	}
+	else
+	{
+		echo '&lt;p>There are no saved searches.&lt;p/p>';
+	}
+</code></pre></p>
+
+<p>After setting the table's title, the code loops through the saved searches. For each search, the code creates a table row containing the search information and functional links. The links are created by appending the search's ID to the desired controller/method.		</p>
+
+<p>Having created the table, the view must then display the form that handles individual searches. This is accomplished by having the controller pass to the view the name of the subview to use. Since the code that displays the searches as a table remains the same regardless of which subview is used, the subview technique saves us from repeating code. Without it, we'd have three complete views (add, edit, and delete), each with the same code to display searches as a table. If we later made a change to the code, we'd have to change three files instead of just one. This doesn't sound too hard, but as the number of files increases, it becomes difficult and inefficient.</p>
+
+<p>The subview files have code in common too, and the same technique of separating common code could be used but has not been. That is left as an exercise for anyone who wants to.</p>
+
+<h3>Libraries</h3>
+
+<p>The applications retrieves webpages and extracts information from them, and pages from different website are different even when the websites are similar. The indeed.com website does not resemble the simplyhired.com website except at the roughest level, and at the code level, the resemblance dwindles down to "they both show lists of job postings." Therefore, the code that extracts the information must know how the website is laid out. This is achieved with a custom class for each website. As of now, there are classes only for indeed.com and simplyhired.com. Adding another website will require studying the website's code, writing the code that extracts the information, and adding the code to the application's library and adding the website to the application's database.</p>
+
+<p>Regardless of the website, the overall approach is the same. Given a starting search URL, the application downloads that page and looks for the URL to the next page. Having established the next page, if any, the code then loops through the page, a job at a time, extracting the information, formatting it as CSV, and storing it into a variable that it will return to the calling controller upon looping through all the pages and having reached a final page that has no more next-page link on it.</p>
+
+<h3>Extraction Method</h3>
+
+<p>There are basically two ways to extract information from a webpage. One is to navigate through the page's DOM, and the other is to analyze the page's actual code. For various reasons, DOM is the preferred way, but it's an advanced method, and the design decision was made to analyze the page's actual code instead. The application uses PHP's regular expression functions because they are more powerful and make searching simpler than using PHP's string functions. Regular expressions, however, are rather cryptic. Unless you use them often, you'll always build them with a cheat sheet next to you.</p>
+
+<h4>Simply Hired</h4>
+
+<p>The simpler of the two extraction classes is the one for Simply Hired. The class has one function, scrape(). The function sets up some variables and then enters its main loop. Since there is a given URL at the start, the loop will always execute at least once. Within the loop, the code retrieves the webpage with PHP's file_get_contents(), which works with webpages too, but you must include the "http://" in the argument or the function will assume it's a local file. The code then determines what the next page is.</p>
+
+<p><pre><code>
+		$url = ((preg_match($reg_next_url, $page, $matches) == 1) ? $search['site_url'] . $matches[1] : '');</code></p>
+</code></pre></p>
+
+<p>The code uses PHP's terniary operator, which is an abbreviated way of conditionally returning a value. The terniary operator is in the form condition ? return_value_if_true : return_value_if_false. It's much more succinct than an if-else statement, but it can make code hard to read. Use it with consideration and read the PHP manual about it. <p>In the above code, it says if preg_match($reg_next_url, $page, $matches) == 1 proves true, return a string that is the concatenation of the site's main URL and whatever is in $matches[1].</p>
+
+<p>The expression <code>preg_match($reg_next_url, $page, $matches)</code> takes <code>$page</code>, which has all that page's HTML code, and searches through it for the regular expression contained in <code>$reg_next_url</code>. The expression's third argument is an empty array, which can be called anything but which we have called <code>$matches</code>. If preg_match finds what it's looking for, if puts what it found in $matches[0]. If the regular expression has capture groups, preg_match will put the captured groups into $matches too, the first captured group going into $matches[1], the second into into $matches[2], and so on and so forth for as many captured groups as there are.</p>
+
+<p>The regular expression in $reg_next_url has one capture group, the URL to the next page, so preg_match puts the URL to the next page into $matches[1]. But analysis of the simplyhired.com webpage shows that this is not actually the full URL but only the list of arguments that must be appended to the site's home URL, so we must construct the full URL by concatenating the site's home URL, contained in <code>self::SITE</code>, to <code>$matches[1]</code>. However, if preg_match doesn't find there's a URL to the next page, it will return 0, which will make the terniary operator return '', an empty string. That goes into <code>$url</code> and causes the loop to end after processing the current page.</p>
+
+<p>There is an inner loop that processes each job. The Simply Hired website is consistent enough that each field can be extracted with only the regular expression changing.</p>
+
+<p><pre><code>
+		foreach ($reg_get_fields as $reg_field)
+		{
+			$line .= ((preg_match($reg_field, $job, $field) == 1) ? $field[1] : '') . '","';
+		}
+</code></pre></p>
+
+<p>The code searches for each field defined in <code>$reg_get_fields</code>. As in the code above, the terniary operator returns the field if the search is successful or an empty string if it is not. In either case, the string '","' is appended to the field. This string is the CSV separator, and for Excel at least, there cannot be any whitespace in it.</p>
+
+<p><pre><code>
+		$line = '"' . $line . date('dmY') . '","' . 'sh' . '"' . "\r\n";
+		$output .= strip_tags(html_entity_decode($line, ENT_QUOTES));
+</code></pre></p>
+
+<p>After extracting every field, the code adds the date, the code "sh" to indicate Simply Hired, and a Windows-friendly line terminator. It then converts HTML character codes like &amp; to their actual characters, and finally strips out any HTML tags.</p>
+
+<h4>Indeed</h4>
+
+<p>A glance at the Site_indeed class will show some differences. An added complexity is that Indeed has both sponsored (paid) job postings and organic (free) job postings, and each are formatted differently, requiring each job to first be tested to determine which kind it is. Also, in the case of the URL field, Indeed includes a relative URL, which needs to be made absolute for it to work on its own. Beyond this, however, the process of extracting information is similar in both.</p>
+
+<h4>Information Extracted</h4>
+
+<p>For each job, the application extracts:</p>
+
+<p>Job title,<br>
+City,<br>
+Employer,<br>
+Agency,<br>
+Job Description,<br>
+URL to job posting,<br>
+Date extracted,<br>
+Website code (sh or nd)</p>
+
+<h4>Regular Expressions</h4></p>
+
+<p>Regular expressions, often abbreviated as regex, are a complex subject. Explaining them goes beyond the scope of this document, but there are many fine resources on the internet.</p>
