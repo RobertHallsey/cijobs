@@ -8,36 +8,100 @@ const SITE_CODE = 'sh';
 	public function scrape($search)
 	{
 		$url = $search['url'];
-		$reg_next_url = '/<a href="([^"]*?)" rel="nofollow" class="evtc next-pagination" data-event="pagination_next"/';
-		$reg_get_jobs = '/<div id="r:.*?<div class="divclear"><\/div>/s';
-		$reg_get_fields = array(
-			'title'       => '/<h2 class="serp-title" itemprop="title">(.*?)<\/h2>/s',
-			'city'        => '/<span class="serp-location" itemprop="addressLocality">(.*?)<\/span>/s',
-			'employer'    => '/<span class="serp-company" itemprop="name">.*?(\S.*?)\n.*?<\/span>/s',
-			'agency'      => '/<p class="serp-timesource"><span class="serp-timestamp">.*?<\/span>(?: by | from )(.*?)<\/p>/s',
-			'description' => '/<p class="serp-snippet" itemprop="description">(.*?)<\/p>/s',
-			'url'         => '/data-event="job_description_link_click".*?href="(.*?)">Description<\/a>/s'
-		);
+		$jobs = array();
 		$output = '';
+		libxml_use_internal_errors(true);
 		while ($url)
 		{
-			$page = file_get_contents($url);
-			$url = ((preg_match($reg_next_url, $page, $matches) == 1) ? self::SITE . $matches[1] : '');
-			preg_match_all($reg_get_jobs, $page, $matches);
-			foreach ($matches[0] as $job)
+			$dom = new domDocument;
+			@$dom->loadHTMLFile($url, LIBXML_NOWARNING | LIBXML_NOERROR);
+			$url = '';
+			$elements = $dom->getElementsByTagName('a');
+			foreach ($elements as $element)
 			{
-				$line = '';
-				foreach ($reg_get_fields as $reg_field)
+				if ($element->getAttribute('class') == 'evtc next-pagination')
 				{
-					$field = ((preg_match($reg_field, $job, $field) == 1) ? $field[1] : '');
-					$field = str_replace('"', '\'', $field);
-					$line .= $field . '","';
+					$url = $element->getAttribute('href');
 				}
-				$line = '"' . $line . date('dmY') . '","' . self::SITE_CODE . '"' . "\r\n";
-				$output .= strip_tags(html_entity_decode($line, ENT_QUOTES));
+			}
+			$elements = $dom->getElementsByTagName('div');
+			foreach ($elements as $element)
+			{
+				if ($element->getAttribute('class') == 'card js-job')
+				{
+					$output .= self::extract_job($element);
+				}
 			}
 		}
 		return $output;
 	}
 	
+	public function extract_job ($job)
+	{
+		$fields = array(
+			'title' => '',
+			'city' => '',
+			'employer' => '',
+			'agency' => '',
+			'description' => '',
+			'url' => ''
+		);
+		// get title
+		$elements = $job->getElementsByTagName('h2');
+		$element = $elements[0];
+		$fields['title'] = self::clean_field($element->textContent);
+		
+		// get city and employer
+		$elements = $job->getElementsByTagName('span');
+		foreach ($elements as $element)
+		{
+			if ($element->getAttribute('class') == 'serp-location' &&
+				$element->getAttribute('itemprop') == 'jobLocation')
+			{
+				$fields['city'] = self::clean_field($element->textContent);
+				continue;
+			}
+			if ($element->getAttribute('class') == 'serp-company' &&
+				$element->getAttribute('itemprop') == 'name')
+			{
+				$fields['employer'] = self::clean_field($element->textContent);
+				continue;
+			}
+		}
+		$elements = $job->getElementsByTagName('p');
+		foreach ($elements as $element)
+		{
+			if ($element->getAttribute('itemprop') == 'description')
+			{
+				$fields['description'] = self::clean_field($element->textContent);
+				continue;
+			}
+			if ($element->getAttribute('class') == 'serp-timesource')
+			{
+				preg_match('/(?:Sponsored by | from )(.*?)$/', self::clean_field($element->textContent), $matches);
+				$fields['agency'] = $matches[1];
+			}
+		}
+		// get url
+		$elements = $job->getElementsByTagName('p');
+		foreach ($elements as $element)
+		{
+			if ($element->getAttribute('data-event') == 'job_description_link_click')
+			{
+				$fields['url'] = $element->getAttribute('href');
+			}
+		}
+		$line = '"' . implode('","', $fields) . '"' . "\r\n";
+		return ($line);
+	}
+	
+	public function clean_field ($field)
+	{
+		$field = trim($field);
+		$field = preg_replace('/\s\s+/', ' ', $field);
+		$field = html_entity_decode($field, ENT_QUOTES);
+		$field = strip_tags($field);
+		$field = str_replace('"', '""', $field);
+		return $field;
+	}
 }

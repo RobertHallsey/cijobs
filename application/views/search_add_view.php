@@ -6,7 +6,7 @@
 					
 				<p class="space">
 					<label for="name">Search Name</label>
-					<input type="text" id="name" name="search[name]" value="<?php echo set_value('search[name]', '') ?>" size="32" maxlength="32">
+					<input type="text" id="name" name="search[name]" value="<?php echo set_value('search[name]', '') ?>" size="32" maxlength="32" autofocus>
 					<?php echo form_error('search[name]', '<br>', '') ?>
 				</p>
 

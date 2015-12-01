@@ -80,35 +80,37 @@
 
 <h4>Simply Hired</h4>
 
-<p>The simpler of the two extraction classes is the one for Simply Hired. The class has one function, scrape(). The function sets up some variables and then enters its main loop. Since there is a given URL at the start, the loop will always execute at least once. Within the loop, the code retrieves the webpage with PHP's file_get_contents(), which works with webpages too, but you must include the "http://" in the argument or the function will assume it's a local file. The code then determines what the next page is.</p>
+<p>The simpler of the two extraction classes is the one for Simply Hired. The class has one function, <code>scrape()</code>. The function sets up some variables and then enters its main loop. Since there is a given URL at the start, the loop will always execute at least once. Within the loop, the code retrieves the webpage with PHP's <code>file_get_contents()</code>, which works with webpages too, but you must include the "http://" in the argument or the function will assume it's a local file. The code then determines what the next page is.</p>
 
 <p><pre><code>
 		$url = ((preg_match($reg_next_url, $page, $matches) == 1) ? $search['site_url'] . $matches[1] : '');</code></p>
 </code></pre></p>
 
-<p>The code uses PHP's terniary operator, which is an abbreviated way of conditionally returning a value. The terniary operator is in the form condition ? return_value_if_true : return_value_if_false. It's much more succinct than an if-else statement, but it can make code hard to read. Use it with consideration and read the PHP manual about it. <p>In the above code, it says if preg_match($reg_next_url, $page, $matches) == 1 proves true, return a string that is the concatenation of the site's main URL and whatever is in $matches[1].</p>
+<p>The code uses PHP's terniary operator, which is an abbreviated way of conditionally returning a value. The terniary operator is in the form <code>condition ? return_value_if_true : return_value_if_false</code>. It's much more succinct than an if-else statement, but it can make code hard to read. Use it with consideration and read the PHP manual about it. <p>In the above code, it says if <code>preg_match($reg_next_url, $page, $matches)</code> returns 1, indicating it found a match, return a string that is the concatenation of the site's main URL and whatever is in $matches[1]. Otherwise, it did not find a match, and so an empty string is returned.</p>
 
-<p>The expression <code>preg_match($reg_next_url, $page, $matches)</code> takes <code>$page</code>, which has all that page's HTML code, and searches through it for the regular expression contained in <code>$reg_next_url</code>. The expression's third argument is an empty array, which can be called anything but which we have called <code>$matches</code>. If preg_match finds what it's looking for, if puts what it found in $matches[0]. If the regular expression has capture groups, preg_match will put the captured groups into $matches too, the first captured group going into $matches[1], the second into into $matches[2], and so on and so forth for as many captured groups as there are.</p>
+<p>The expression <code>preg_match($reg_next_url, $page, $matches)</code> takes <code>$page</code>, which has all that page's HTML code in it, and searches through it for the regular expression contained in <code>$reg_next_url</code>. The expression's third argument is an empty array, which can be called anything but which we have called <code>$matches</code>. If preg_match finds what it's looking for, if puts what it found in $matches[0]. If the regular expression has capture groups, preg_match will put the captured groups into $matches too, the first captured group going into $matches[1], the second into into $matches[2], and so on and so forth for as many captured groups as there are.</p>
 
-<p>The regular expression in $reg_next_url has one capture group, the URL to the next page, so preg_match puts the URL to the next page into $matches[1]. But analysis of the simplyhired.com webpage shows that this is not actually the full URL but only the list of arguments that must be appended to the site's home URL, so we must construct the full URL by concatenating the site's home URL, contained in <code>self::SITE</code>, to <code>$matches[1]</code>. However, if preg_match doesn't find there's a URL to the next page, it will return 0, which will make the terniary operator return '', an empty string. That goes into <code>$url</code> and causes the loop to end after processing the current page.</p>
+<p>The regular expression in <code>$reg_next_url</code> has one capture group, the URL to the next page, so preg_match puts the URL to the next page into $matches[1]. But analysis of the simplyhired.com webpage shows that this is not actually the full URL but only the list of arguments that must be appended to the site's home URL, so we must construct the full URL by concatenating the site's home URL, contained in <code>self::SITE</code>, to <code>$matches[1]</code>. However, if preg_match doesn't find there's a URL to the next page, it will return 0, which will make the terniary operator return '', an empty string. Assigning the empty string to <code>$url</code> causes the loop to end after processing the current page.</p>
 
 <p>There is an inner loop that processes each job. The Simply Hired website is consistent enough that each field can be extracted with only the regular expression changing.</p>
 
 <p><pre><code>
 		foreach ($reg_get_fields as $reg_field)
 		{
-			$line .= ((preg_match($reg_field, $job, $field) == 1) ? $field[1] : '') . '","';
+			$field = ((preg_match($reg_field, $job, $field) == 1) ? $field[1] : '');
+			$field = str_replace('"', '""', $field);
+			$line .= $field . '","';
 		}
 </code></pre></p>
 
-<p>The code searches for each field defined in <code>$reg_get_fields</code>. As in the code above, the terniary operator returns the field if the search is successful or an empty string if it is not. In either case, the string '","' is appended to the field. This string is the CSV separator, and for Excel at least, there cannot be any whitespace in it.</p>
+<p>The code searches for each field defined in <code>$reg_get_fields</code>. The terniary operator returns the field if the search is successful or an empty string if it is not. Then any double quotes are escaped by doubling them. Finally, the string '","' is appended to the field. This string is the CSV separator, and for Excel at least, there cannot be any whitespace in it.</p>
 
 <p><pre><code>
-		$line = '"' . $line . date('dmY') . '","' . 'sh' . '"' . "\r\n";
+		$line = '"' . $line . date('dmY') . '","' . self::SITE_CODE . '"' . "\r\n";
 		$output .= strip_tags(html_entity_decode($line, ENT_QUOTES));
 </code></pre></p>
 
-<p>After extracting every field, the code adds the date, the code "sh" to indicate Simply Hired, and a Windows-friendly line terminator. It then converts HTML character codes like &amp; to their actual characters, and finally strips out any HTML tags.</p>
+<p>After extracting every field, the code adds the date, a code for the site defined as "sh" in a class constant to indicate Simply Hired, and a Windows-friendly line terminator. It then converts HTML character codes like &amp; to their actual characters, and finally strips out any HTML tags.</p>
 
 <h4>Indeed</h4>
 
