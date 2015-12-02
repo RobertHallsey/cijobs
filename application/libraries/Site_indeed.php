@@ -1,25 +1,22 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Site_indeed {
+include ('Site_general.php');
+
+class Site_indeed extends Site_general {
 
 const SITE = 'http://www.indeed.com';
 const SITE_CODE = 'in';
 const URL_SEGS = '/rc/clk?jk=';
-
 
 	public function scrape($search)
 	{
 		$url = $search['url'];
 		$jobs = array();
 		$output = '';
-		libxml_use_internal_errors(true);
 		while ($url)
 		{
-			$page = curl_init($url);
-			curl_setopt($page, CURLOPT_RETURNTRANSFER, true);
-			$dom = new domDocument;
-			@$dom->loadHTML(curl_exec($page), LIBXML_NOWARNING | LIBXML_NOERROR);
-			curl_close($page);
+			$dom = self::get_page($url);
+			// find next page
 			$url = '';
 			$elements = $dom->getElementsByTagName('a');
 			foreach ($elements as $element)
@@ -30,6 +27,7 @@ const URL_SEGS = '/rc/clk?jk=';
 					break;
 				}
 			}
+			// extract jobs from page
 			$elements = $dom->getElementsByTagName('div');
 			foreach ($elements as $element)
 			{
@@ -37,7 +35,6 @@ const URL_SEGS = '/rc/clk?jk=';
 					$element->getAttribute('data-tn-component') == 'organicJob')
 				{
 					$output .= self::extract_job($element);
-					$x = 3;
 				}
 			}
 		}
@@ -86,15 +83,5 @@ const URL_SEGS = '/rc/clk?jk=';
 		$fields['url'] = self::SITE . self::URL_SEGS . $job->getAttribute('data-jk');
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);
-	}
-	
-	public function clean_field ($field)
-	{
-		$field = trim($field);
-		$field = preg_replace('/\s\s+/', ' ', $field);
-		$field = html_entity_decode($field, ENT_QUOTES);
-		$field = strip_tags($field);
-		$field = str_replace('"', '""', $field);
-		return $field;
 	}
 }

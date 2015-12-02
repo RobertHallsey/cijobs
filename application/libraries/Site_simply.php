@@ -1,6 +1,8 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Site_simply {
+include ('Site_general.php');
+
+class Site_simply extends Site_general {
 
 const SITE = 'http://www.simplyhired.com';
 const SITE_CODE = 'sh';
@@ -8,16 +10,11 @@ const SITE_CODE = 'sh';
 	public function scrape($search)
 	{
 		$url = $search['url'];
-		$jobs = array();
 		$output = '';
-		libxml_use_internal_errors(true);
 		while ($url)
 		{
-			$page = curl_init($url);
-			curl_setopt($page, CURLOPT_RETURNTRANSFER, true);
-			$dom = new domDocument;
-			@$dom->loadHTML(curl_exec($page), LIBXML_NOWARNING | LIBXML_NOERROR);
-			curl_close($page);
+			$dom = self::get_page($url);
+			// find next page
 			$url = '';
 			$elements = $dom->getElementsByTagName('a');
 			foreach ($elements as $element)
@@ -25,8 +22,10 @@ const SITE_CODE = 'sh';
 				if ($element->getAttribute('class') == 'evtc next-pagination')
 				{
 					$url = $element->getAttribute('href');
+					break;
 				}
 			}
+			// extract jobs from page
 			$elements = $dom->getElementsByTagName('div');
 			foreach ($elements as $element)
 			{
@@ -83,6 +82,7 @@ const SITE_CODE = 'sh';
 			{
 				preg_match('/(?:Sponsored by | from )(.*?)$/', self::clean_field($element->textContent), $matches);
 				$fields['agency'] = $matches[1];
+				continue;
 			}
 		}
 		// get url
@@ -96,15 +96,5 @@ const SITE_CODE = 'sh';
 		}
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);
-	}
-	
-	public function clean_field ($field)
-	{
-		$field = trim($field);
-		$field = preg_replace('/\s\s+/', ' ', $field);
-		$field = html_entity_decode($field, ENT_QUOTES);
-		$field = strip_tags($field);
-		$field = str_replace('"', '""', $field);
-		return $field;
 	}
 }

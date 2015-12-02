@@ -1,8 +1,8 @@
 		<form method="post">
-
+		
 			<fieldset>
 			
-				<legend>Delete this Search</legend>
+				<legend>Execute this Search</legend>
 
 				<p class="space">
 					<label for="name">Search Name</label>
@@ -16,11 +16,12 @@
 				
 				<p>
 					<label for="url">Search URL</label>
-					<input type="text" id="url" name="search[url]" value="<?php echo set_value('search[url]', $search['url']); ?>" size="105" disabled>
+					<input type="text" id="url" name="search[url]" value="<?php echo set_value('search[url]', $search['url']); ?>" size="105" maxlength="254">
+					<?php echo form_error('search[url]', '<br>', ''); ?>
 				</p>
 
 				<p><input type="submit" name="submit" value="Ok"></p>
-
+				
 			</fieldset>
 
 		</form>

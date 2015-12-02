@@ -5,22 +5,23 @@
 		<h2>Saved Job Searches</h2>
 
 <?php
-	if (count($searches))
+	if (count($searches) == 0)
 	{
-		$this->table->set_heading('Search Name', 'Job Site', 'Search URL',	'Edit', 'Delete', 'Execute');
-		foreach ($searches as $search)
-		{
-			$this->table->add_row(
-				$search['name'], $search['site_name'], $search['url'],
-				anchor('searches/edit/' . $search['id'], 'Edit'), 
-				anchor('searches/delete/' . $search['id'], 'Delete'),
-				anchor('searches/execute/' . $search['id'], 'Execute'));
-		}
-		echo $this->table->generate();
+		echo '<p>There are no saved searches.</p>';
 	}
 	else
 	{
-		echo '<p>There are no saved searches.</p>';
+		$this->table->set_heading('Search Name', 'Job Site', 'Search URL', 'Edit', 'Delete', 'Execute');
+		foreach ($searches as $search)
+		{
+			$this->table->add_row(
+				$search['name'], $search['site_name'], $search['url'], 
+				anchor('searches/edit/' . $search['id'], 'Edit'), 
+				anchor('searches/delete/' . $search['id'], 'Delete'),
+				anchor('searches/execute/' . $search['id'], 'Execute')
+			);
+		}
+		echo $this->table->generate();
 	}
 ?>
 

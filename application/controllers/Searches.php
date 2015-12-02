@@ -22,11 +22,12 @@ protected $searches = array();
 		$this->form_validation->set_rules('search[name]', 'Search Name', 'required');
 		$this->form_validation->set_rules('search[site_id]', 'Job Site', 'required');
 		$this->form_validation->set_rules('search[url]', 'Search URL', 'required');
+		$this->form_validation->set_rules('search[format]', 'Format', 'required');
 		if ($this->form_validation->run())
 		{
 			$data = $this->input->post('search', TRUE);
 			$search_id = $this->searches_model->add_search($data);
-			redirect('');
+			redirect();
 		}
 		$data = array(
 			'subview' => 'search_add_view',
@@ -43,6 +44,7 @@ protected $searches = array();
 		$this->form_validation->set_rules('search[name]', 'Search Name', 'required');
 		$this->form_validation->set_rules('search[site_id]', 'Job Site', 'required');
 		$this->form_validation->set_rules('search[url]', 'Search URL', 'required');
+		$this->form_validation->set_rules('search[format]', 'Format', 'required');
 		if ($this->form_validation->run())
 		{
 			$search = $this->input->post('search', TRUE);
@@ -50,10 +52,11 @@ protected $searches = array();
 				'id' => $search_id,
 				'name' => $search['name'],
 				'site_id' => $search['site_id'],
-				'url' => $search['url']
+				'url' => $search['url'],
+				'format' => $search['format']
 			);
 			$this->searches_model->update_search($data);
-			redirect('');
+			redirect();
 		}
 		$data = array(
 			'subview' => 'search_edit_view',
@@ -72,7 +75,7 @@ protected $searches = array();
 		{
 			$data = array('id' => $search_id);
 			$this->searches_model->delete_search($data);
-			redirect('');
+			redirect();
 		}
 		$data = array(
 			'subview' => 'search_delete_view',
@@ -86,11 +89,19 @@ protected $searches = array();
 	public function execute($search_id)
 	{
 		$search = $this->searches_model->get_search($search_id);
-		$search['id'] = $search_id;
-		$this->load->library($search['site_class']);
-		$output = $this->$search['site_class']->scrape($search);
-		force_download($search['name'] . '.csv', $output);
-		redirect('');
+		if ($this->input->server('REQUEST_METHOD') == 'POST')
+		{
+			$this->load->library($search['site_class']);
+			$output = $this->$search['site_class']->scrape($search);
+			force_download($search['name'] . '.csv', $output);
+		}
+		$data = array(
+			'subview' => 'search_execute_view',
+			'sites' => $this->sites,
+			'searches' => $this->searches,
+			'search' => $search
+		);
+		$this->load->view('searches_view', $data);
 	}
 
 }
