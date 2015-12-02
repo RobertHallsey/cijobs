@@ -26,7 +26,7 @@ protected $searches = array();
 		{
 			$data = $this->input->post('search', TRUE);
 			$search_id = $this->searches_model->add_search($data);
-			redirect('searches');
+			redirect('');
 		}
 		$data = array(
 			'subview' => 'search_add_view',
@@ -53,7 +53,7 @@ protected $searches = array();
 				'url' => $search['url']
 			);
 			$this->searches_model->update_search($data);
-			redirect('searches');
+			redirect('');
 		}
 		$data = array(
 			'subview' => 'search_edit_view',
@@ -72,7 +72,7 @@ protected $searches = array();
 		{
 			$data = array('id' => $search_id);
 			$this->searches_model->delete_search($data);
-			redirect('searches');
+			redirect('');
 		}
 		$data = array(
 			'subview' => 'search_delete_view',
@@ -90,7 +90,7 @@ protected $searches = array();
 		$this->load->library($search['site_class']);
 		$output = $this->$search['site_class']->scrape($search);
 		force_download($search['name'] . '.csv', $output);
-		redirect('searches');
+		redirect('');
 	}
 
 }

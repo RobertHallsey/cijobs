@@ -15,8 +15,11 @@ const URL_SEGS = '/rc/clk?jk=';
 		libxml_use_internal_errors(true);
 		while ($url)
 		{
+			$page = curl_init($url);
+			curl_setopt($page, CURLOPT_RETURNTRANSFER, true);
 			$dom = new domDocument;
-			@$dom->loadHTMLFile($url, LIBXML_NOWARNING | LIBXML_NOERROR);
+			@$dom->loadHTML(curl_exec($page), LIBXML_NOWARNING | LIBXML_NOERROR);
+			curl_close($page);
 			$url = '';
 			$elements = $dom->getElementsByTagName('a');
 			foreach ($elements as $element)

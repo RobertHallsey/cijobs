@@ -13,8 +13,11 @@ const SITE_CODE = 'sh';
 		libxml_use_internal_errors(true);
 		while ($url)
 		{
+			$page = curl_init($url);
+			curl_setopt($page, CURLOPT_RETURNTRANSFER, true);
 			$dom = new domDocument;
-			@$dom->loadHTMLFile($url, LIBXML_NOWARNING | LIBXML_NOERROR);
+			@$dom->loadHTML(curl_exec($page), LIBXML_NOWARNING | LIBXML_NOERROR);
+			curl_close($page);
 			$url = '';
 			$elements = $dom->getElementsByTagName('a');
 			foreach ($elements as $element)
@@ -48,7 +51,7 @@ const SITE_CODE = 'sh';
 		);
 		// get title
 		$elements = $job->getElementsByTagName('h2');
-		$element = $elements[0];
+		$element = $elements->item(0);
 		$fields['title'] = self::clean_field($element->textContent);
 		
 		// get city and employer
