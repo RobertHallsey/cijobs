@@ -1,8 +1,8 @@
 <?php $this->load->view('header'); ?>
 
-	<div id="content">
+  <div id="content">
 
-		<h2>Saved Job Searches</h2>
+    <h2>Saved Job Searches</h2>
 
 <?php
 	if (count($searches) == 0)

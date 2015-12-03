@@ -14,7 +14,7 @@
 
 <h3>Controllers</h3>
 
-<p>The application has one controller, Searches.php. The controller's constructor loads what it needs, including the sites and saved searches from the database. There is no pagination mechanism for the data because the application is not intended to support a large number of searches or sites.</p>
+<p>The application has one controller, <code>Searches.php</code>. The controller's constructor loads what it needs, including the sites and saved searches from the database. There is no pagination mechanism for the data because the application is not intended to support a large number of searches or sites.</p>
 
 <p>The controller has four methods: index, edit, delete, and execute. The index method performs the add function.</p>
 
@@ -24,7 +24,7 @@
 
 <p>The delete method also must be given the ID of the search to delete, but it performs no form validation. It's not necessary since the only question is whether to delete the search or not, so the method instead tests to see if the form was submitted at all. This is the test that does that: <code>if ($this->input->server('REQUEST_METHOD') == 'POST')</code>. If the form was submitted, if the user pressed OK, the search is deleted and the screen refreshes, no longer showing the deleted search.</p>
 
-<p>The execute method involves no view. The method loads the search and then loads from the application's library the class that will execute the search. It then executes the search, downloads the resulting file, and refreshes the screen. Notice that the method executes the search using a variable reference. You may have so far seen only direct references, like <code>$this->customer_model->get_rows()</code>, but PHP allows you to put "customer_model" into a variable <code>$foo</code> and then invoke the method with <code>$this->$foo->get_rows()</code>. Finally, <code>force_download()</code> is a CodeIgniter helper function.</p>
+<p>The execute method shows the search in a form, allowing you to temporarily modify the search's URL. When you press Ok, the search will use your modified URL without saving it in the database. This allows you to do just-once searches without having to first add them and then delete them. After you press Ok, the method loads the search and then loads from the application's library the class that will execute the search. It then executes the search and downloads the resulting file. The screen does not refresh because it can't. Under PHP, you can send HTTP headers that download a file <i>or</i> that redirect to a page, but you can't do both. Notice that the method executes the search using a variable reference. You may have so far seen only direct references, like <code>$this->customer_model->get_rows()</code>, but PHP allows you to put "customer_model" into a variable <code>$foo</code> and then invoke the method with <code>$this->$foo->get_rows()</code>. Finally, <code>force_download()</code> is a CodeIgniter helper function.</p>
 
 <h3>Views</h3>
 
@@ -78,39 +78,15 @@
 
 <h3>Extraction Method</h3>
 
-<p>There are basically two ways to extract information from a webpage. One is to navigate through the page's DOM, and the other is to analyze the page's actual code. For various reasons, DOM is the preferred way, but it's an advanced method, and the design decision was made to analyze the page's actual code instead. The application uses PHP's regular expression functions because they are more powerful and make searching simpler than using PHP's string functions. Regular expressions, however, are rather cryptic. Unless you use them often, you'll always build them with a cheat sheet next to you.</p>
+<p>Although HTML is plain text, processing web pages with regular expressions is error prone and brittle. Small inconsistencies in the HTML easily break the regex matching. For this and other reasons, it's a best practice to process web pages using their DOM objects. PHP implements this in the DOMDocument class. This class loads a web page, creating the DOM object, and then provides methods to find tags, like <code>&lt;div></code> or <code>&lt;a>, and examine their attributes.</p>
 
 <h4>Simply Hired</h4>
-
-<p>The simpler of the two extraction classes is the one for Simply Hired. The class has one function, <code>scrape()</code>. The function sets up some variables and then enters its main loop. Since there is a given URL at the start, the loop will always execute at least once. Within the loop, the code retrieves the webpage with PHP's <code>file_get_contents()</code>, which works with webpages too, but you must include the "http://" in the argument or the function will assume it's a local file. The code then determines what the next page is.</p>
-
-<p><pre><code>
-		$url = ((preg_match($reg_next_url, $page, $matches) == 1) ? $search['site_url'] . $matches[1] : '');</code></p>
-</code></pre></p>
 
 <p>The code uses PHP's terniary operator, which is an abbreviated way of conditionally returning a value. The terniary operator is in the form <code>condition ? return_value_if_true : return_value_if_false</code>. It's much more succinct than an if-else statement, but it can make code hard to read. Use it with consideration and read the PHP manual about it. <p>In the above code, it says if <code>preg_match($reg_next_url, $page, $matches)</code> returns 1, indicating it found a match, return a string that is the concatenation of the site's main URL and whatever is in $matches[1]. Otherwise, it did not find a match, and so an empty string is returned.</p>
 
 <p>The expression <code>preg_match($reg_next_url, $page, $matches)</code> takes <code>$page</code>, which has all that page's HTML code in it, and searches through it for the regular expression contained in <code>$reg_next_url</code>. The expression's third argument is an empty array, which can be called anything but which we have called <code>$matches</code>. If preg_match finds what it's looking for, if puts what it found in $matches[0]. If the regular expression has capture groups, preg_match will put the captured groups into $matches too, the first captured group going into $matches[1], the second into into $matches[2], and so on and so forth for as many captured groups as there are.</p>
 
 <p>The regular expression in <code>$reg_next_url</code> has one capture group, the URL to the next page, so preg_match puts the URL to the next page into $matches[1]. But analysis of the simplyhired.com webpage shows that this is not actually the full URL but only the list of arguments that must be appended to the site's home URL, so we must construct the full URL by concatenating the site's home URL, contained in <code>self::SITE</code>, to <code>$matches[1]</code>. However, if preg_match doesn't find there's a URL to the next page, it will return 0, which will make the terniary operator return '', an empty string. Assigning the empty string to <code>$url</code> causes the loop to end after processing the current page.</p>
-
-<p>There is an inner loop that processes each job. The Simply Hired website is consistent enough that each field can be extracted with only the regular expression changing.</p>
-
-<p><pre><code>
-		foreach ($reg_get_fields as $reg_field)
-		{
-			$field = ((preg_match($reg_field, $job, $field) == 1) ? $field[1] : '');
-			$field = str_replace('"', '""', $field);
-			$line .= $field . '","';
-		}
-</code></pre></p>
-
-<p>The code searches for each field defined in <code>$reg_get_fields</code>. The terniary operator returns the field if the search is successful or an empty string if it is not. Then any double quotes are escaped by doubling them. Finally, the string '","' is appended to the field. This string is the CSV separator, and for Excel at least, there cannot be any whitespace in it.</p>
-
-<p><pre><code>
-		$line = '"' . $line . date('dmY') . '","' . self::SITE_CODE . '"' . "\r\n";
-		$output .= strip_tags(html_entity_decode($line, ENT_QUOTES));
-</code></pre></p>
 
 <p>After extracting every field, the code adds the date, a code for the site defined as "sh" in a class constant to indicate Simply Hired, and a Windows-friendly line terminator. It then converts HTML character codes like &amp; to their actual characters, and finally strips out any HTML tags.</p>
 
@@ -130,7 +106,3 @@ Job Description,<br>
 URL to job posting,<br>
 Date extracted,<br>
 Website code (sh or nd)</p>
-
-<h4>Regular Expressions</h4></p>
-
-<p>Regular expressions, often abbreviated as regex, are a complex subject. Explaining them goes beyond the scope of this document, but there are many fine resources on the internet.</p>

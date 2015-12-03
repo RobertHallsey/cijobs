@@ -1,11 +1,11 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-include ('Site_general.php');
+include ('Site.php');
 
-class Site_simply extends Site_general {
+class Site_simply extends Site {
 
 const SITE = 'http://www.simplyhired.com';
-const SITE_CODE = 'sh';
+const SITE_CODE = 'SH';
 
 	public function scrape($search)
 	{
@@ -46,7 +46,9 @@ const SITE_CODE = 'sh';
 			'employer' => '',
 			'agency' => '',
 			'description' => '',
-			'url' => ''
+			'url' => '',
+			'date' => '',
+			'code' => ''
 		);
 		// get title
 		$elements = $job->getElementsByTagName('h2');
@@ -86,14 +88,16 @@ const SITE_CODE = 'sh';
 			}
 		}
 		// get url
-		$elements = $job->getElementsByTagName('p');
+		$elements = $job->getElementsByTagName('a');
 		foreach ($elements as $element)
-		{
+		{	
 			if ($element->getAttribute('data-event') == 'job_description_link_click')
 			{
 				$fields['url'] = $element->getAttribute('href');
 			}
 		}
+		$fields['date'] = date('dmY');
+		$fields['code'] = self::SITE_CODE;
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);
 	}

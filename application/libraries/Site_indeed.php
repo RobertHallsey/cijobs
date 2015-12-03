@@ -1,11 +1,11 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-include ('Site_general.php');
+include ('Site.php');
 
-class Site_indeed extends Site_general {
+class Site_indeed extends Site {
 
 const SITE = 'http://www.indeed.com';
-const SITE_CODE = 'in';
+const SITE_CODE = 'ND';
 const URL_SEGS = '/rc/clk?jk=';
 
 	public function scrape($search)
@@ -49,7 +49,9 @@ const URL_SEGS = '/rc/clk?jk=';
 			'employer' => '',
 			'agency' => '',
 			'description' => '',
-			'url' => ''
+			'url' => '',
+			'date' => '',
+			'code' => ''
 		);
 		// get title
 		$elements = $job->getElementsByTagName('a');
@@ -81,6 +83,8 @@ const URL_SEGS = '/rc/clk?jk=';
 		$fields['agency'] = 'none';
 		// get url
 		$fields['url'] = self::SITE . self::URL_SEGS . $job->getAttribute('data-jk');
+		$fields['date'] = date('dmY');
+		$fields['code'] = self::SITE_CODE;
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);
 	}

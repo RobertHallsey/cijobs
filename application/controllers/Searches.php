@@ -22,7 +22,6 @@ protected $searches = array();
 		$this->form_validation->set_rules('search[name]', 'Search Name', 'required');
 		$this->form_validation->set_rules('search[site_id]', 'Job Site', 'required');
 		$this->form_validation->set_rules('search[url]', 'Search URL', 'required');
-		$this->form_validation->set_rules('search[format]', 'Format', 'required');
 		if ($this->form_validation->run())
 		{
 			$data = $this->input->post('search', TRUE);
@@ -44,7 +43,6 @@ protected $searches = array();
 		$this->form_validation->set_rules('search[name]', 'Search Name', 'required');
 		$this->form_validation->set_rules('search[site_id]', 'Job Site', 'required');
 		$this->form_validation->set_rules('search[url]', 'Search URL', 'required');
-		$this->form_validation->set_rules('search[format]', 'Format', 'required');
 		if ($this->form_validation->run())
 		{
 			$search = $this->input->post('search', TRUE);
@@ -52,8 +50,7 @@ protected $searches = array();
 				'id' => $search_id,
 				'name' => $search['name'],
 				'site_id' => $search['site_id'],
-				'url' => $search['url'],
-				'format' => $search['format']
+				'url' => $search['url']
 			);
 			$this->searches_model->update_search($data);
 			redirect();
