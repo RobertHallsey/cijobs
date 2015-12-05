@@ -2,12 +2,12 @@
 
 abstract class Site {
 
-	private $curl_options = array(
-		'CURLOPT_USERAGENT' => 'Mozilla/5.0 (Windows NT 6.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36',
-		'CURLOPT_AUTOREFERER' => true,
-		'CURLOPT_RETURNTRANSFER' => true,
-		'CURLOPT_FOLLOWLOCATION' => true,
-		'CURLOPT_MAXREDIRS' => 4
+	static private $curl_options = array(
+		CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 6.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36',
+		CURLOPT_AUTOREFERER => true,
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_FOLLOWLOCATION => true,
+		CURLOPT_MAXREDIRS => 4
 	);
 
 	abstract protected function scrape ($search);
