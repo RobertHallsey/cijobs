@@ -2,15 +2,25 @@
 
 abstract class Site {
 
+	private $curl_options = array(
+		'CURLOPT_USERAGENT' => 'Mozilla/5.0 (Windows NT 6.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36',
+		'CURLOPT_AUTOREFERER' => true,
+		'CURLOPT_RETURNTRANSFER' => true,
+		'CURLOPT_FOLLOWLOCATION' => true,
+		'CURLOPT_MAXREDIRS' => 4
+	);
+
 	abstract protected function scrape ($search);
+
+	abstract protected function extract_job ($job);
 
 	public function get_page($url)
 	{
 		libxml_use_internal_errors(true);
 		$page = curl_init($url);
-		curl_setopt($page, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt_array($page, self::$curl_options);
 		$dom = new domDocument;
-		@$dom->loadHTML(curl_exec($page), LIBXML_NOWARNING | LIBXML_NOERROR);
+		@$dom->loadHTML(curl_exec($page), LIBXML_NOBLANKS | LIBXML_NOWARNING | LIBXML_NOERROR);
 		curl_close($page);
 		return $dom;
 	}

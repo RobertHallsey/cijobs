@@ -47,7 +47,6 @@ const URL_SEGS = '/rc/clk?jk=';
 			'title' => '',
 			'city' => '',
 			'employer' => '',
-			'agency' => '',
 			'description' => '',
 			'url' => '',
 			'date' => '',
@@ -80,10 +79,9 @@ const URL_SEGS = '/rc/clk?jk=';
 					break;
 			}
 		}
-		$fields['agency'] = 'none';
 		// get url
 		$fields['url'] = self::SITE . self::URL_SEGS . $job->getAttribute('data-jk');
-		$fields['date'] = date('dmY');
+		$fields['date'] = date('Ymd');
 		$fields['code'] = self::SITE_CODE;
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);

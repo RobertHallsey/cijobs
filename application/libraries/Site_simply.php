@@ -96,7 +96,7 @@ const SITE_CODE = 'SH';
 				$fields['url'] = $element->getAttribute('href');
 			}
 		}
-		$fields['date'] = date('dmY');
+		$fields['date'] = date('Ymd');
 		$fields['code'] = self::SITE_CODE;
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);

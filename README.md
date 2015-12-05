@@ -12,9 +12,11 @@ The use of webscrapers can be abusive and is thus controversial. This applicatio
 
 In the zip are two folders, `application` and `assets`, and one file, `createdb.sql`.
 
-The application folder contains these files:
+The application folder consists of these files:
 
 * application/controllers/Searches.php
+* application/libraries/Site.php
+* application/libraries/Site_craigslist.php
 * application/libraries/Site_indeed.php
 * application/libraries/Site_simply.php
 * application/models/Searches_model.php
@@ -24,6 +26,7 @@ The application folder contains these files:
 * application/views/search_add_view.php
 * application/views/search_edit_view.php
 * application/views/search_delete_view.php
+* applications/views/search_execute_view.php
 
 ## Installation
 
