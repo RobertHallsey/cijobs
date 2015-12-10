@@ -10,32 +10,24 @@ const URL_SEGS = '/rc/clk?jk=';
 
 	public function scrape($search)
 	{
-		$url = $search['url'];
-		$jobs = array();
 		$output = '';
+		$url = $search['url'];
 		while ($url)
 		{
 			$dom = self::get_page($url);
-			// find next page
+			$xpath = new DomXPath($dom);
+			// get URL to next page if any
 			$url = '';
-			$elements = $dom->getElementsByTagName('a');
-			foreach ($elements as $element)
+			$elements = $xpath->query('//div[@class="pagination"]')->item(0)->lastChild;
+			if ($elements->textContent == 'Next' . html_entity_decode('&nbsp;') . '»')
 			{
-				if ($element->textContent == 'Next' . html_entity_decode('&nbsp;&raquo;'))
-				{
-					$url = self::SITE . $element->getAttribute('href');
-					break;
-				}
+				$url = self::SITE . $elements->getAttribute('href');
 			}
 			// extract jobs from page
-			$elements = $dom->getElementsByTagName('div');
+			$elements = $xpath->query('//div[@data-jk]');
 			foreach ($elements as $element)
 			{
-				if ($element->getAttribute('data-tn-component') == 'sponsoredJob' ||
-					$element->getAttribute('data-tn-component') == 'organicJob')
-				{
-					$output .= self::extract_job($element);
-				}
+				$output .= self::extract_job($element);
 			}
 		}
 		return $output;
@@ -52,34 +44,13 @@ const URL_SEGS = '/rc/clk?jk=';
 			'date' => '',
 			'code' => ''
 		);
-		// get title
-		$elements = $job->getElementsByTagName('a');
-		foreach ($elements as $element)
-		{
-			if ($element->getAttribute('data-tn-element') == 'jobTitle')
-			{
-				$fields['title'] = self::clean_field($element->textContent);
-				break;
-			}
-		}
-		// get city, employer, and description
-		$elements = $job->getElementsByTagName('span');
-		foreach ($elements as $element)
-		{
-			switch ($element->getAttribute('class'))
-			{
-				case 'location':
-					$fields['city'] = self::clean_field($element->textContent);
-					break;
-				case 'company':
-					$fields['employer'] = self::clean_field($element->textContent);
-					break;
-				case 'summary':
-					$fields['description'] = self::clean_field($element->textContent);
-					break;
-			}
-		}
-		// get url
+		$dom = new DomDocument;
+		$dom->appendChild($dom->importNode($job, true));
+		$xpath = new DomXPath($dom);
+		$fields['title'] = self::clean_field($xpath->query('//a[@data-tn-element]')->item(0)->textContent);
+		$fields['city'] = self::clean_field($xpath->query('//span[@class="location"]')->item(0)->textContent);
+		$fields['employer'] = self::clean_field($xpath->query('//span[@class="company"]')->item(0)->textContent);
+		$fields['description'] = self::clean_field($xpath->query('//span[@class="summary"]')->item(0)->textContent);
 		$fields['url'] = self::SITE . self::URL_SEGS . $job->getAttribute('data-jk');
 		$fields['date'] = date('Ymd');
 		$fields['code'] = self::SITE_CODE;
