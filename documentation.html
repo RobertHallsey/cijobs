@@ -2,11 +2,13 @@
 
 <h2>User Documentation</h2>
 
+<p>Please see the README.MD file for installation instructions.</p>
+
 <p>Having installed the application in CodeIgniter, you are ready to use it. Run the application in one browser tab, and in another tab, open indeed.com or simplyhire.com. Once there, run a search for the jobs your want. You don't need to save the search. The website will respond with the first page of your search results. Ignore them and look at the address bar. That is the URL you will use for this search. Copy it to the clipboard and move to the tab where you're running Job Board Scraper.</p>
 
 <p>Fill out the form under Add a New Search. Give the search you're about to save a meaningful name, and select whether it's an Indeed or a Simply Hired search. Then paste the URL you copied to the clipboard into the Search URL field. Click Ok to save the search and watch it appear in the list of saved searches. You can now edit it or delete it by clicking the links to the right of the saved search.</p>
 
-<p>You can also execute the search. When you do so, the application will show the search and allow you to edit the URL. This is in case you have a standard search that you would like to run slightly differently just this once. After you clock Ok, a CSV file with the name of your search will download. This should not take more than a few seconds, no longer than it would take to download the individual web pages in the search. The web pages are not particularly large, so with high-speed internet, even ten seconds is enough to download hundreds of jobs. Again, please don't run the application carelessly or abusively, though I imagine both websites have measures to prevent abusive downloading.</p>
+<p>You can also execute the search. When you do so, the application will show the search and allow you to edit the URL. This is in case you have a standard search that you would like to run slightly differently just this once. After you click Ok, a CSV file with the name of your search will download. This should not take more than a few seconds, no longer than it would take to download the individual web pages in the search. The web pages are not particularly large, so with high-speed internet, even ten seconds is enough to download hundreds of jobs. Again, please don't run the application carelessly or abusively, though I imagine both websites have measures to prevent abusive downloading.</p>
 
 <p>You should know that even recent versions of Excel don't handle UTF-8 correctly when loading CSV files. It displays some multi-byte characters as multipe single-byte characters. Depending on your searches, this may not matter or it may matter very much. The workaround is to <i>import</i> the files instead of opening them. Excel versions as far back as 2003 have an import function under the Tools menu. When you import a file, you are able to select the encoding, something you can't do when you merely open it.</p>
 
@@ -106,3 +108,98 @@ Job Description,<br>
 URL to job posting,<br>
 Date extracted,<br>
 Website code (sh or nd)</p>
+
+<h3>Writing a Library for a New Site</h3>
+
+<p>To add a site the application can scrape, you will have to do two things. You will have to add the site to the <code>SITES</i> table in the database, and you will have to write the code, just one file, that handles the site. Of course, you will have to study the site's code to determine the best way to extract what you want. The existing site libraries use XPath, but this is not an imposed requirement. Here's how the flow works, starting with the execute method in the controller:</p>
+
+<pre><code>    public function execute($search_id)
+    {
+        if ($this->input->server('REQUEST_METHOD') == 'POST')
+        {
+            $search = $this->searches_model->get_search($search_id);
+            $this->load->library($search['site_class']);
+            $output = $this->$search['site_class']->scrape($search);
+            force_download($search['name'] . '.csv', $output);
+        }
+        $data = array(
+            'subview' => 'search_execute_view',
+            'sites' => $this->sites,
+            'searches' => $this->searches,
+            'search' => $search
+        );
+        $this->load->view('searches_view', $data);
+    }</code></pre>
+
+<p>If the user clicks Ok to execute the search, the controller calls the model to get the search profile, which includes the search name, the search URL, and the name of the class file that handles this site. The controller then uses PHP's variable function feature to invoke the site's scrape() method and give it the search profile. The site's scrape() method then returns a string in $output consisting of the CSV file to download. So the transaction comes down to "here's a search profile, now give me the CSV output from executing that search."</p>
+
+<p>Now let's look at a skeleton library class file for a site</p>
+
+<pre><code>&lt;?php defined('BASEPATH') OR exit('No direct script access allowed');
+
+include ('Site.php');
+
+class Site_some_site extends Site {
+
+    public function scrape($search)
+    {
+        $output = '';
+        $url = $search['url'];
+        while ($url)
+        {
+            $dom = self::get_page($url);
+            $xpath = new DomXPath($dom);
+            // find next page
+			//
+			// get the URL to the next page or assign '' to it here
+			// to indicate the last page has been reached
+			//
+            // extract jobs from page
+            $elements = $xpath->query('some-query-that-gets-you-the-rows');
+            foreach ($elements as $element)
+            {
+                $output .= self::extract_job($element);
+            }
+        }
+        return $output;
+    }
+    
+    public function extract_job ($job)
+    {
+        $fields = array(
+		    'name' => '',
+			//whatever fields you wish to extract
+        );
+        $dom = new DomDocument;
+        $dom->appendChild($dom->importNode($job, true));
+        $xpath = new DomXPath($dom);
+		//
+        // code to extract the fields you want goes here
+		//		
+        $line = '"' . implode('","', $fields) . '"' . "\r\n";
+        return ($line);
+    }
+}
+</code></pre>
+
+<p>Consider the scrape($search) method. An outer loop executes as long as $url is not ''. The first action within the loop is to obtain a DOM object from the given $url. This is done through a method in the parent class, and it's a state class, so we must invoke it with the self keyword. From the DOM object, we create an XPath object, and now the task is to determine what the next page is, if anything. That code is up to you since how each site does it is different. If there is no next page, then $url should be cleared to stop the loop.</p>
+
+<p>The next step is to extract the rows from which you want to then extract fields. Studying the site's code, you might notice that every row has a class called "row," or that every row has a particular ID. The code above extracts these rows, puts them into $elements, and then loops through them, sending each element of $elements to the extract_job() method and accumulating the returned result. Upon going through all the rows, $output is returned to the controller.</p>
+
+<p>The code that processes every row is the method extract_job, which operates on the given $job (a DOMElement; darn, this stuff's confusing!). The method creates a new DOM object and stuffs the $job contents into it, thus creating an XPath-able object that we store in $xpath. From there, we can extract the fields however we want, store them in an array, and then use implode() to flatten the array out into a single CSV line.</p>
+
+<p>If the above skeleton suits you, all you must do is add the code that's particular to the site. Note that $fields doesn't have to be an associative array. However, although the keys serve no functional purpose, they make the code a lot more readable. Check out this code from an actual library file.</p>
+
+<code><pre>
+	$xpath = new DomXPath($dom);
+	$fields['title'] = self::clean_field($xpath->query('//a[@data-tn-element]')->item(0)->textContent);
+	$fields['city'] = self::clean_field($xpath->query('//span[@class="location"]')->item(0)->textContent);
+	$fields['employer'] = self::clean_field($xpath->query('//span[@class="company"]')->item(0)->textContent);
+	$fields['description'] = self::clean_field($xpath->query('//span[@class="summary"]')->item(0)->textContent);
+	$fields['url'] = self::SITE . self::URL_SEGS . $job->getAttribute('data-jk');
+	$fields['date'] = date('Ymd');
+	$fields['code'] = self::SITE_CODE;
+	$line = '"' . implode('","', $fields) . '"' . "\r\n";
+</pre></code>
+
+<p>Now imagine the code used indexes instead. You'd forever be double-checking index numbers against a cheat sheet!</p>

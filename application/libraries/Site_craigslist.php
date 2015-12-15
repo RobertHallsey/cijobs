@@ -34,12 +34,12 @@ const SITE_CODE = 'CL';
 		$fields = array(
 			'title' => '',
 			'city' => '',
+			'employer' => '',
+			'agency' => '',
+			'description' => '',
 			'url' => '',
 			'date' => '',
-			'code' => '',
-			'map' => '',
-			'img' => '',
-			'pic' => ''
+			'code' => ''
 		);
 		$dom = new DomDocument;
 		$dom->appendChild($dom->importNode($job, true));
@@ -50,9 +50,6 @@ const SITE_CODE = 'CL';
 		$fields['url'] = $field;
 		$field = $xpath->query('//span[@class="l2"]')->item(0)->textContent;
 		if (preg_match('/ *?\((.*?)\)/', $field, $matches)) $fields['city'] = $matches[1];
-		if (strpos($field, ' map ')) $fields['map'] = 'map';
-		if (strpos($field, ' img ')) $fields['img'] = 'img';
-		if (strpos($field, ' pic ')) $fields['pic'] = 'pic';
 		$xpath->query('//time')->item(0)->getAttribute('datetime');
 		$fields['date'] = date('Ymd', strtotime($xpath->query('//time')->item(0)->getAttribute('datetime')));
 		$fields['code'] = self::SITE_CODE;

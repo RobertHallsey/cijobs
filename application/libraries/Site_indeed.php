@@ -39,6 +39,7 @@ const URL_SEGS = '/rc/clk?jk=';
 			'title' => '',
 			'city' => '',
 			'employer' => '',
+			'agency' => '',
 			'description' => '',
 			'url' => '',
 			'date' => '',
