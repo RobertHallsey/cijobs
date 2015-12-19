@@ -44,7 +44,7 @@ Edit the following files:
 * config/database.php - Set up your database. The application's database's name is `cijobs`.
 * config/config.php - Set your base URL, something like `$config['base_url'] = 'http://www.example.com/cijobs/';`
 
-The application should now run.
+Run the application.
 
 ## Support
 
