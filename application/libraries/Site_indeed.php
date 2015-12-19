@@ -6,7 +6,6 @@ class Site_indeed extends Site {
 
 const SITE = 'http://www.indeed.com';
 const SITE_CODE = 'ND';
-const URL_SEGS = '/rc/clk?jk=';
 
 	public function scrape($search)
 	{
@@ -23,17 +22,17 @@ const URL_SEGS = '/rc/clk?jk=';
 			{
 				$url = self::SITE . $elements->getAttribute('href');
 			}
-			// extract jobs from page
+			// extract rows from page
 			$elements = $xpath->query('//div[@data-jk]');
 			foreach ($elements as $element)
 			{
-				$output .= self::extract_job($element);
+				$output .= self::extract_row($element);
 			}
 		}
 		return $output;
 	}
 	
-	public function extract_job ($job)
+	public function extract_row ($row)
 	{
 		$fields = array(
 			'title' => '',
@@ -45,14 +44,19 @@ const URL_SEGS = '/rc/clk?jk=';
 			'date' => '',
 			'code' => ''
 		);
+		$field = '';
 		$dom = new DomDocument;
-		$dom->appendChild($dom->importNode($job, true));
+		$dom->appendChild($dom->importNode($row, true));
 		$xpath = new DomXPath($dom);
-		$fields['title'] = self::clean_field($xpath->query('//a[@data-tn-element]')->item(0)->textContent);
-		$fields['city'] = self::clean_field($xpath->query('//span[@class="location"]')->item(0)->textContent);
-		$fields['employer'] = self::clean_field($xpath->query('//span[@class="company"]')->item(0)->textContent);
-		$fields['description'] = self::clean_field($xpath->query('//span[@class="summary"]')->item(0)->textContent);
-		$fields['url'] = self::SITE . self::URL_SEGS . $job->getAttribute('data-jk');
+		$field = $xpath->query('//a[@data-tn-element]');
+		$fields['title'] = (($field->length) ? self::clean_field($field->item(0)->textContent) : '');
+		$field = $xpath->query('//span[@class="location"]');
+		$fields['city'] = (($field->length) ? self::clean_field($field->item(0)->textContent) : '');
+		$field = $xpath->query('//span[@class="company"]');
+		$fields['employer'] = (($field->length) ? self::clean_field($field->item(0)->textContent) : '');
+		$field = $xpath->query('//span[@class="summary"]');
+		$fields['description'] = (($field->length) ? self::clean_field($field->item(0)->textContent) : '');
+		$fields['url'] = self::SITE . '/rc/clk?jk=' . $row->getAttribute('data-jk');
 		$fields['date'] = date('Ymd');
 		$fields['code'] = self::SITE_CODE;
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";

@@ -1,12 +1,12 @@
-# Job Board Scraper, a CodeIgniter 3.0 application.
+# Search Results Extractor, a CodeIgniter 3.0 application.
 
 ## Purpose
 
-This CodeIgniter application lets you store and execute job board searches on specific job sites. Executing a job search downloads a CSV file containing the job postings from that search. This CSV file can then be process with Excel or similar to weed out duplicates, perform finer job groupings, etc. The application separates the scraping code into a site-specific files, so it can be used to turn any series of row-based web pages into CSV data. You need to write the code for this, but this is explained later on.
+This CodeIgniter application provides a framework designed to automate your regular web searches. When you search for something on a website, search results are displayed on the screen in rows, up to a certain number of them, and one or more links lead to the next page of search results, until reaching the last page. This application stores your search queries and executes them on your command, extracting the search results page after page and downloading them in CSV format. CSV files can be easily imported into Excel and other applications for further processing. 
 
-CodeIgniter is a PHP framework that makes developing web applications easier and faster. For those learning CodeIgniter, exploring this application should serve as a good step up from the basic tutorials. The application is applicable in the real world and uses a few intermediate concepts, yet it's not overwhelmingly complex. It has only one controller and uses only two tables. Increasing the number of sites the application works on does not increase the number of tables, only the number of rows in the tables.
+This type of data extraction cannot be generalized because not only is every website different, but also website code changes over time. This means that you will have to supply the code to extract search results from the websites you want. This is not difficult to do, and if you're learning PHP or CodeIgniter, it's an excellent step-up in complexity from the usual beginner tutorials. The application includes class files for three job websites: Craigslist, Indeed, and Simply Hired. Keep in mind that _what_ it extracts is dictated by the class files, so you could use this to extract apartment listings, parts from a catalog, personal ads, anything! You are encouraged to submit any class files you create.
 
-The use of webscrapers can be abusive and is thus controversial. This application is designed and intended to assist jobseekers in their search for work. An average jobseeker will download a few dozen or even a few hundred jobs per day, and this usage is not a problem at all. Please do not use this application abusively!
+The use of webscrapers can be abusive and is thus controversial. Please do not use this application abusively!
 
 ## Files Included
 

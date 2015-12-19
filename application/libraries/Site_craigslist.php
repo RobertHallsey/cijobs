@@ -16,20 +16,20 @@ const SITE_CODE = 'CL';
 			$dom = self::get_page($url);
 			$xpath = new DomXPath($dom);
 			// find next page
-			$elements = $xpath->query('//span[@class="paginator buttongroup  lastpage"]');
+			$elements = $xpath->query('//div[contains(@class, "paginator")]');
 			$url = ($elements->length == 2 ? '' : self::SITE . $xpath->query('//a[@class="button next"]')->item(0)->getAttribute('href'));
-			// extract jobs from page
+			// extract rows from page
 			$elements = $dom->getElementsByTagName('p');
 			$elements = $xpath->query('//p[@class="row"]');
 			foreach ($elements as $element)
 			{
-				$output .= self::extract_job($element);
+				$output .= self::extract_row($element);
 			}
 		}
 		return $output;
 	}
 	
-	public function extract_job ($job)
+	public function extract_row($row)
 	{
 		$fields = array(
 			'title' => '',
@@ -42,9 +42,10 @@ const SITE_CODE = 'CL';
 			'code' => ''
 		);
 		$dom = new DomDocument;
-		$dom->appendChild($dom->importNode($job, true));
+		$dom->appendChild($dom->importNode($row, true));
 		$xpath = new DomXPath($dom);
-		$fields['title'] = self::clean_field($xpath->query('//a[@class="hdrlnk"]')->item(0)->textContent);
+		$field = $xpath->query('//a[@class="hdrlnk"]');
+		$fields['title'] = (($field->length) ? self::clean_field($field->item(0)->textContent) : '');
 		$field = $xpath->query('//a[@class="hdrlnk"]')->item(0)->getAttribute('href');
 		if ($field[0] == '/') $field = self::SITE . $field;
 		$fields['url'] = $field;

@@ -12,7 +12,7 @@ abstract class Site {
 
 	abstract protected function scrape ($search);
 
-	abstract protected function extract_job ($job);
+	abstract protected function extract_row ($row);
 
 	public function get_page($url)
 	{
