@@ -1,4 +1,4 @@
-# Search Results Extractor, a CodeIgniter 3.0 application.
+# Search Scraper, a CodeIgniter 3.0 application.
 
 ## Purpose
 

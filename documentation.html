@@ -4,11 +4,11 @@
 
 <p>Please see the README.MD file for installation instructions.</p>
 
-<p>Having installed the application in CodeIgniter, you are ready to use it. Run the application in one browser tab, and in another tab, open indeed.com or simplyhire.com. Once there, run a search for the jobs your want. You don't need to save the search. The website will respond with the first page of your search results. Ignore them and look at the address bar. That is the URL you will use for this search. Copy it to the clipboard and move to the tab where you're running Job Board Scraper.</p>
+<p>Having installed the application in CodeIgniter, you are ready to use it. Run the application in one browser tab, and in another tab, open indeed.com or simplyhire.com. Once there, run a search for the jobs your want, setting options as you wish. You don't need to save the search. The website will respond with the first page of your search results. Ignore them and look at the address bar. That is the URL you will use for this search. Copy it to the clipboard and move to the tab where you're running Job Board Scraper.</p>
 
 <p>Fill out the form under Add a New Search. Give the search you're about to save a meaningful name, and select whether it's an Indeed or a Simply Hired search. Then paste the URL you copied to the clipboard into the Search URL field. Click Ok to save the search and watch it appear in the list of saved searches. You can now edit it or delete it by clicking the links to the right of the saved search.</p>
 
-<p>You can also execute the search. When you do so, the application will show the search and allow you to edit the URL. This is in case you have a standard search that you would like to run slightly differently just this once. After you click Ok, a CSV file with the name of your search will download. This should not take more than a few seconds, no longer than it would take to download the individual web pages in the search. The web pages are not particularly large, so with high-speed internet, even ten seconds is enough to download hundreds of jobs. Again, please don't run the application carelessly or abusively, though I imagine both websites have measures to prevent abusive downloading.</p>
+<p>You can also execute the search. When you do so, the application will show the search and allow you to edit the URL. This is in case you have a standard search that you would like to run slightly differently just this once. After you click Ok, a CSV file with the name of your search will download. This should not take more than a few seconds, no longer than it would take to download the individual web pages in the search. The web pages are not particularly large, so with high-speed internet, even ten seconds is enough to download hundreds of rows. Again, please don't run the application carelessly or abusively, though I imagine both websites have measures to prevent abusive downloading.</p>
 
 <p>You should know that even recent versions of Excel don't handle UTF-8 correctly when loading CSV files. It displays some multi-byte characters as multipe single-byte characters. Depending on your searches, this may not matter or it may matter very much. The workaround is to <i>import</i> the files instead of opening them. Excel versions as far back as 2003 have an import function under the Tools menu. When you import a file, you are able to select the encoding, something you can't do when you merely open it.</p>
 
@@ -35,38 +35,38 @@
 <p>The view is invoked with an array that passes this data.</p>
 
 <p><pre><code>
-	$data = array(
-		'subview' => 'search_add_view',
-		'sites' => $this->sites,
-		'searches' => $this->searches,
-		'search' => $search
-	);
-	$this->load->view('searches_view', $data);
+    $data = array(
+        'subview' => 'search_add_view',
+        'sites' => $this->sites,
+        'searches' => $this->searches,
+        'search' => $search
+    );
+    $this->load->view('searches_view', $data);
 </code></pre></p>
 
 <p>The elements in the <code>$data</code> array are extracted as variables in searches_view.php. If there are any saved searches, the method builds a table from them, including hyperlinks to edit, delete, and execute each one. That happens in this code.</p>
 
 <p><pre><code>
-	if (count($searches))
-	{
-		$this->table->set_heading('Search Name', 'Job Site', 'Search URL',	'Edit', 'Delete', 'Execute');
-		foreach ($searches as $search)
-		{
-			$this->table->add_row(
-				$search['name'], $search['site_name'], $search['url'],
-				anchor('searches/edit/' . $search['id'], 'Edit'), 
-				anchor('searches/delete/' . $search['id'], 'Delete'),
-				anchor('searches/execute/' . $search['id'], 'Execute'));
-		}
-		echo $this->table->generate();
-	}
-	else
-	{
-		echo '&lt;p>There are no saved searches.&lt;p/p>';
-	}
+    if (count($searches))
+    {
+        $this->table->set_heading('Search Name', 'Job Site', 'Search URL',    'Edit', 'Delete', 'Execute');
+        foreach ($searches as $search)
+        {
+            $this->table->add_row(
+                $search['name'], $search['site_name'], $search['url'],
+                anchor('searches/edit/' . $search['id'], 'Edit'), 
+                anchor('searches/delete/' . $search['id'], 'Delete'),
+                anchor('searches/execute/' . $search['id'], 'Execute'));
+        }
+        echo $this->table->generate();
+    }
+    else
+    {
+        echo '&lt;p>There are no saved searches.&lt;p/p>';
+    }
 </code></pre></p>
 
-<p>After setting the table's title, the code loops through the saved searches. For each search, the code creates a table row containing the search information and functional links. The links are created by appending the search's ID to the desired controller/method.		</p>
+<p>After setting the table's title, the code loops through the saved searches. For each search, the code creates a table row containing the search information and functional links. The links are created by appending the search's ID to the desired controller/method.        </p>
 
 <p>Having created the table, the view must then display the form that handles individual searches. This is accomplished by having the controller pass to the view the name of the subview to use. Since the code that displays the searches as a table remains the same regardless of which subview is used, the subview technique saves us from repeating code. Without it, we'd have three complete views (add, edit, and delete), each with the same code to display searches as a table. If we later made a change to the code, we'd have to change three files instead of just one. This doesn't sound too hard, but as the number of files increases, it becomes difficult and inefficient.</p>
 
@@ -74,50 +74,34 @@
 
 <h3>Libraries</h3>
 
-<p>The applications retrieves webpages and extracts information from them, and pages from different website are different even when the websites are similar. The indeed.com website does not resemble the simplyhired.com website except at the roughest level, and at the code level, the resemblance dwindles down to "they both show lists of job postings." Therefore, the code that extracts the information must know how the website is laid out. This is achieved with a custom class for each website. As of now, there are classes only for indeed.com and simplyhired.com. Adding another website will require studying the website's code, writing the code that extracts the information, and adding the code to the application's library and adding the website to the application's database.</p>
+<p>The applications retrieves webpages and extracts information from them, and pages from different website are different even when the websites are similar. The indeed.com website does not resemble the simplyhired.com website except at the roughest level, and at the code level, the resemblance dwindles down to "they both show lists of rows." Therefore, the code that extracts the information must know how the website is laid out. This is achieved with a custom class for each website. As of now, there are classes only for indeed.com and simplyhired.com. Adding another website will require studying the website's code, writing the code that extracts the information, and adding the code to the application's library and adding the website to the application's database.</p>
 
-<p>Regardless of the website, the overall approach is the same. Given a starting search URL, the application downloads that page and looks for the URL to the next page. Having established the next page, if any, the code then loops through the page, a job at a time, extracting the information, formatting it as CSV, and storing it into a variable that it will return to the calling controller upon looping through all the pages and having reached a final page that has no more next-page link on it.</p>
+<p>Regardless of the website, the overall approach is the same. Given a starting search URL, the application downloads that page and looks for the URL to the next page. Having established the next page, if any, the code then loops through the page, a row at a time, extracting the information, formatting it as CSV, and storing it into a variable that it will return to the calling controller upon looping through all the pages and having reached a final page that has no more next-page link on it.</p>
 
 <h3>Extraction Method</h3>
 
-<p>Although HTML is plain text, processing web pages with regular expressions is error prone and brittle. Small inconsistencies in the HTML easily break the regex matching. For this and other reasons, it's a best practice to process web pages using their DOM objects. PHP implements this in the DOMDocument class. This class loads a web page, creating the DOM object, and then provides methods to find tags, like <code>&lt;div></code> or <code>&lt;a>, and examine their attributes.</p>
-
-<h4>Simply Hired</h4>
-
-<p>The code uses PHP's terniary operator, which is an abbreviated way of conditionally returning a value. The terniary operator is in the form <code>condition ? return_value_if_true : return_value_if_false</code>. It's much more succinct than an if-else statement, but it can make code hard to read. Use it with consideration and read the PHP manual about it. <p>In the above code, it says if <code>preg_match($reg_next_url, $page, $matches)</code> returns 1, indicating it found a match, return a string that is the concatenation of the site's main URL and whatever is in $matches[1]. Otherwise, it did not find a match, and so an empty string is returned.</p>
-
-<p>The expression <code>preg_match($reg_next_url, $page, $matches)</code> takes <code>$page</code>, which has all that page's HTML code in it, and searches through it for the regular expression contained in <code>$reg_next_url</code>. The expression's third argument is an empty array, which can be called anything but which we have called <code>$matches</code>. If preg_match finds what it's looking for, if puts what it found in $matches[0]. If the regular expression has capture groups, preg_match will put the captured groups into $matches too, the first captured group going into $matches[1], the second into into $matches[2], and so on and so forth for as many captured groups as there are.</p>
-
-<p>The regular expression in <code>$reg_next_url</code> has one capture group, the URL to the next page, so preg_match puts the URL to the next page into $matches[1]. But analysis of the simplyhired.com webpage shows that this is not actually the full URL but only the list of arguments that must be appended to the site's home URL, so we must construct the full URL by concatenating the site's home URL, contained in <code>self::SITE</code>, to <code>$matches[1]</code>. However, if preg_match doesn't find there's a URL to the next page, it will return 0, which will make the terniary operator return '', an empty string. Assigning the empty string to <code>$url</code> causes the loop to end after processing the current page.</p>
-
-<p>After extracting every field, the code adds the date, a code for the site defined as "sh" in a class constant to indicate Simply Hired, and a Windows-friendly line terminator. It then converts HTML character codes like &amp; to their actual characters, and finally strips out any HTML tags.</p>
-
-<h4>Indeed</h4>
-
-<p>A glance at the Site_indeed class will show some differences. An added complexity is that Indeed has both sponsored (paid) job postings and organic (free) job postings, and each are formatted differently, requiring each job to first be tested to determine which kind it is. Also, in the case of the URL field, Indeed includes a relative URL, which needs to be made absolute for it to work on its own. Beyond this, however, the process of extracting information is similar in both.</p>
-
 <h4>Information Extracted</h4>
 
-<p>For each job, the application extracts:</p>
+<p>For each row, the application extracts:</p>
 
 <p>Job title,<br>
 City,<br>
 Employer,<br>
 Agency,<br>
 Job Description,<br>
-URL to job posting,<br>
+URL,<br>
 Date extracted,<br>
 Website code (sh or nd)</p>
 
 <h3>Writing a Library for a New Site</h3>
 
-<p>To add a site the application can scrape, you will have to do two things. You will have to add the site to the <code>SITES</i> table in the database, and you will have to write the code, just one file, that handles the site. Of course, you will have to study the site's code to determine the best way to extract what you want. The existing site libraries use XPath, but this is not an imposed requirement. Here's how the flow works, starting with the execute method in the controller:</p>
+<p>To add a site the application can scrape, you will have to do two things. You will have to add the site to the <code>SITES</code> table in the database, and you will have to write the code, just one file, that handles the site. Of course, you will have to study the site's code to determine the best way to extract what you want. The existing site libraries use XPath, but this is not an imposed requirement. Here's how the flow works, starting with the execute method in the controller:</p>
 
 <pre><code>    public function execute($search_id)
     {
+        $search = $this->searches_model->get_search($search_id);
         if ($this->input->server('REQUEST_METHOD') == 'POST')
         {
-            $search = $this->searches_model->get_search($search_id);
             $this->load->library($search['site_class']);
             $output = $this->$search['site_class']->scrape($search);
             force_download($search['name'] . '.csv', $output);
@@ -131,75 +115,77 @@ Website code (sh or nd)</p>
         $this->load->view('searches_view', $data);
     }</code></pre>
 
-<p>If the user clicks Ok to execute the search, the controller calls the model to get the search profile, which includes the search name, the search URL, and the name of the class file that handles this site. The controller then uses PHP's variable function feature to invoke the site's scrape() method and give it the search profile. The site's scrape() method then returns a string in $output consisting of the CSV file to download. So the transaction comes down to "here's a search profile, now give me the CSV output from executing that search."</p>
+<p>If the user clicks Ok to execute the search, the controller uses PHP's variable function feature to invoke the site's <code>scrape()</code> method and give it the search profile. The site's <code>scrape()</code> method then returns a string in <code>$output</code> consisting of the CSV file to download. So the transaction comes down to "here's a search profile, now give me the CSV output from executing that search."</p>
 
-<p>Now let's look at a skeleton library class file for a site</p>
+<p>Now let's look at the <code>scrape()</code> method.</p>
 
-<pre><code>&lt;?php defined('BASEPATH') OR exit('No direct script access allowed');
-
-include ('Site.php');
-
-class Site_some_site extends Site {
-
-    public function scrape($search)
+<pre><code>    public function scrape($search)
     {
         $output = '';
         $url = $search['url'];
         while ($url)
         {
             $dom = self::get_page($url);
-            $xpath = new DomXPath($dom);
-            // find next page
-			//
-			// get the URL to the next page or assign '' to it here
-			// to indicate the last page has been reached
-			//
-            // extract jobs from page
-            $elements = $xpath->query('some-query-that-gets-you-the-rows');
+            $xpath = new DOMXPath($dom);
+            //
+            // YOU MUST PROVIDE THIS CODE
+            // $url = URL to the next page or '' if last page
+            //
+            // YOU MUST PROVIDE THIS CODE
+            // $elements = $xpath->query('some-query-that-gets-you-the-rows');
+            //
             foreach ($elements as $element)
             {
-                $output .= self::extract_job($element);
+                $output .= self::extract_row($element);
             }
         }
         return $output;
-    }
-    
-    public function extract_job ($job)
+    }</code></pre>
+
+<p>The <code>scrape()</code> method receives the search profile in the array <code>$search</code>, and then enters a loop that continues until the variable <code>$url</code> no longer evaluates to a boolean true. Within the loop, the method uses the search URL to create a DOMDocument object in <code>$dom</code>, and then an DOMXPath object. Now comes the part that you must supply. You must write the XPath query that retrieves the URL to the next page, and if there is no next page, you must clear the <code>$url</code> variable to avoid an infinite loop. After that, you must write the XPath query that extracts the rows you want from the web page being processed. The method then loops through all the rows returned in the variable <code>$elements</code>. Note that, strictly speaking, you do not <i>have</i> to use XPath. You can also loop through the DOM and find what you want that way, but once you learn the query syntax, XPath is easy, fast, and efficient.</p>
+
+<p>Now let's look at the <code>extract_row()</code> method.
+
+<pre><code>    public function extract_row ($row)
     {
-        $fields = array(
-		    'name' => '',
-			//whatever fields you wish to extract
-        );
-        $dom = new DomDocument;
-        $dom->appendChild($dom->importNode($job, true));
-        $xpath = new DomXPath($dom);
-		//
-        // code to extract the fields you want goes here
-		//		
+        // YOU MUST PROVIDE THIS CODE
+        // $fields = array(
+        //     'field1' => '',
+        //     'field2' => '',
+        //     'field3' => '',
+        //     whatever fields you want
+        // );
+        //
+        $dom = new DOMDocument;
+        $dom->appendChild($dom->importNode($row, true));
+        $xpath = new DOMXPath($dom);
+        //
+        // YOU MUST PROVIDE THIS CODE
+        // extract the fields you want
+        // $fields['field1'] = some-value
+        //        
         $line = '"' . implode('","', $fields) . '"' . "\r\n";
         return ($line);
     }
-}
 </code></pre>
 
-<p>Consider the scrape($search) method. An outer loop executes as long as $url is not ''. The first action within the loop is to obtain a DOM object from the given $url. This is done through a method in the parent class, and it's a state class, so we must invoke it with the self keyword. From the DOM object, we create an XPath object, and now the task is to determine what the next page is, if anything. That code is up to you since how each site does it is different. If there is no next page, then $url should be cleared to stop the loop.</p>
+<p>The method declares an array called <code>$fields</code>. The array doesn't <i>have</i> to be associative, but the keys make the code easier to read. It's much easier to assign something to <code>$field['field1']</code> than to remember the element's index number. The array also lets you set default values or create fields that aren't actually extracted from the web page.</p>
 
-<p>The next step is to extract the rows from which you want to then extract fields. Studying the site's code, you might notice that every row has a class called "row," or that every row has a particular ID. The code above extracts these rows, puts them into $elements, and then loops through them, sending each element of $elements to the extract_job() method and accumulating the returned result. Upon going through all the rows, $output is returned to the controller.</p>
+<p>The method then creates a DOMDocument object in <code>$dom</code> and adds the DOM element contained in <code>$row</code> to it. Now that it has a complete DOMDocument object, the method then creates a DOMXPath object from it. You then provide the code that extracts the fields. You might use <code>$xpath->query()</code> but you don't have to. See the included site libraries for examples.</p>
 
-<p>The code that processes every row is the method extract_job, which operates on the given $job (a DOMElement; darn, this stuff's confusing!). The method creates a new DOM object and stuffs the $job contents into it, thus creating an XPath-able object that we store in $xpath. From there, we can extract the fields however we want, store them in an array, and then use implode() to flatten the array out into a single CSV line.</p>
+<p>After your code, the method creates a CSV line from the <code>$fields[]</code> array. PHP has functions that read and write CSV data, but Excel is picky, and I've found that using <code>implode()</code> is more reliable.</p>
 
-<p>If the above skeleton suits you, all you must do is add the code that's particular to the site. Note that $fields doesn't have to be an associative array. However, although the keys serve no functional purpose, they make the code a lot more readable. Check out this code from an actual library file.</p>
+<p>Regardless of the method you use to extract fields, the static method <code>clean_field()</code> can ensure your fields are "clean."</p>
 
-<code><pre>
-	$xpath = new DomXPath($dom);
-	$fields['title'] = self::clean_field($xpath->query('//a[@data-tn-element]')->item(0)->textContent);
-	$fields['city'] = self::clean_field($xpath->query('//span[@class="location"]')->item(0)->textContent);
-	$fields['employer'] = self::clean_field($xpath->query('//span[@class="company"]')->item(0)->textContent);
-	$fields['description'] = self::clean_field($xpath->query('//span[@class="summary"]')->item(0)->textContent);
-	$fields['url'] = self::SITE . self::URL_SEGS . $job->getAttribute('data-jk');
-	$fields['date'] = date('Ymd');
-	$fields['code'] = self::SITE_CODE;
-	$line = '"' . implode('","', $fields) . '"' . "\r\n";
-</pre></code>
+<code><pre>    public function clean_field ($field)
+    {
+        $field = trim($field);
+        $field = preg_replace('/\s\s+/', ' ', $field);
+        $field = html_entity_decode($field, ENT_QUOTES);
+        $field = strip_tags($field);
+        $field = str_replace('"', '""', $field);
+        return $field;
+    }</pre></code>
 
-<p>Now imagine the code used indexes instead. You'd forever be double-checking index numbers against a cheat sheet!</p>
+<p>The method trims extra white space, converts HTML codes to characters, removes stray tags, and finally, escapes double quotes.</p>
+
