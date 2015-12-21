@@ -16,7 +16,7 @@ const SITE_CODE = 'ND';
 			// get URL to next page if any
 			$elements = $xpath->query('//div[@class="pagination"]');
 			$url = (($elements->length && $elements->item(0)->lastChild->textContent == 'Next' . html_entity_decode('&nbsp;') . '»')
-					? $url = $this->SITE . $elements->item(0)->lastChild->getAttribute('href') : '' );
+					? $url = self::SITE . $elements->item(0)->lastChild->getAttribute('href') : '' );
 			// extract rows from page
 			$elements = $xpath->query('//div[@data-jk]');
 			foreach ($elements as $element)
@@ -51,9 +51,9 @@ const SITE_CODE = 'ND';
 		$fields['employer'] = (($field->length) ? $this->clean_field($field->item(0)->textContent) : '');
 		$field = $xpath->query('//span[@class="summary"]');
 		$fields['description'] = (($field->length) ? $this->clean_field($field->item(0)->textContent) : '');
-		$fields['url'] = $this->SITE . '/rc/clk?jk=' . $row->getAttribute('data-jk');
+		$fields['url'] = self::SITE . '/rc/clk?jk=' . $row->getAttribute('data-jk');
 		$fields['date'] = date('Ymd');
-		$fields['code'] = $this->SITE_CODE;
+		$fields['code'] = self::SITE_CODE;
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);
 	}

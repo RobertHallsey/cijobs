@@ -18,7 +18,7 @@ const SITE_CODE = 'SH';
 			$elements = $xpath->query('//a[@class="evtc next-pagination"]');
 			if ($elements->length == 1)
 			{
-				$url = $this->SITE . $elements->item(0)->getAttribute('href');
+				$url = self::SITE . $elements->item(0)->getAttribute('href');
 			}
 			// extract rows from page
 			$elements = $xpath->query('//div[@class="card js-job"]');
@@ -57,7 +57,7 @@ const SITE_CODE = 'SH';
 		$fields['agency'] = $matches[1];
 		$fields['url'] =  $xpath->query('//a[@data-event="job_description_link_click"]')->item(0)->getAttribute('href');
 		$fields['date'] = date('Ymd');
-		$fields['code'] = $this->SITE_CODE;
+		$fields['code'] = self::SITE_CODE;
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);
 	}
