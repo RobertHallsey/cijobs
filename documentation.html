@@ -1,16 +1,16 @@
-<h1>Job Board Scraper, a CodeIgniter 3.0 application.</h1>
+<h1>Search Scraper, a CodeIgniter 3.0 application.</h1>
 
 <h2>User Documentation</h2>
 
 <p>Please see the README.MD file for installation instructions.</p>
 
-<p>Having installed the application in CodeIgniter, you are ready to use it. Run the application in one browser tab, and in another tab, open indeed.com or simplyhire.com. Once there, run a search for the jobs your want, setting options as you wish. You don't need to save the search. The website will respond with the first page of your search results. Ignore them and look at the address bar. That is the URL you will use for this search. Copy it to the clipboard and move to the tab where you're running Job Board Scraper.</p>
+<p>Having installed the application in CodeIgniter, you are ready to use it. Run the application in one browser tab, and in another tab, open Craigslist, Indeed, or Simply Hired. Once there, run a search for the jobs your want, setting options as you wish. The website will respond with the first page of your search results. Look at the address bar. That is the URL you will use for this search. Copy it to the clipboard and move to the tab where you're running Search Scraper.</p>
 
-<p>Fill out the form under Add a New Search. Give the search you're about to save a meaningful name, and select whether it's an Indeed or a Simply Hired search. Then paste the URL you copied to the clipboard into the Search URL field. Click Ok to save the search and watch it appear in the list of saved searches. You can now edit it or delete it by clicking the links to the right of the saved search.</p>
+<p>Fill out the form under Add a New Search. Give the search you're about to save a meaningful name, and select which site it's from. Then paste the URL you copied to the clipboard into the Search URL field. Now click Ok to save the search and watch it appear in the list of saved searches. You edit or delete the saved by clicking the links to the right.</p>
 
 <p>You can also execute the search. When you do so, the application will show the search and allow you to edit the URL. This is in case you have a standard search that you would like to run slightly differently just this once. After you click Ok, a CSV file with the name of your search will download. This should not take more than a few seconds, no longer than it would take to download the individual web pages in the search. The web pages are not particularly large, so with high-speed internet, even ten seconds is enough to download hundreds of rows. Again, please don't run the application carelessly or abusively, though I imagine both websites have measures to prevent abusive downloading.</p>
 
-<p>You should know that even recent versions of Excel don't handle UTF-8 correctly when loading CSV files. It displays some multi-byte characters as multipe single-byte characters. Depending on your searches, this may not matter or it may matter very much. The workaround is to <i>import</i> the files instead of opening them. Excel versions as far back as 2003 have an import function under the Tools menu. When you import a file, you are able to select the encoding, something you can't do when you merely open it.</p>
+<p>You should know that even recent versions of Excel don't handle UTF-8 correctly when loading CSV files. It displays some multi-byte characters as multipe single-byte characters. Depending on your searches, this may not matter or it may matter very much. The workaround is to <i>import</i> the files instead of opening them. Even very old Excel versions have an import function under the Tools menu. When you import a file, you are able to select the encoding, something you can't do when you merely open it.</p>
 
 <h2>Technical Documentation</h2>
 
@@ -74,9 +74,7 @@
 
 <h3>Libraries</h3>
 
-<p>The applications retrieves webpages and extracts information from them, and pages from different website are different even when the websites are similar. The indeed.com website does not resemble the simplyhired.com website except at the roughest level, and at the code level, the resemblance dwindles down to "they both show lists of rows." Therefore, the code that extracts the information must know how the website is laid out. This is achieved with a custom class for each website. As of now, there are classes only for indeed.com and simplyhired.com. Adding another website will require studying the website's code, writing the code that extracts the information, and adding the code to the application's library and adding the website to the application's database.</p>
-
-<p>Regardless of the website, the overall approach is the same. Given a starting search URL, the application downloads that page and looks for the URL to the next page. Having established the next page, if any, the code then loops through the page, a row at a time, extracting the information, formatting it as CSV, and storing it into a variable that it will return to the calling controller upon looping through all the pages and having reached a final page that has no more next-page link on it.</p>
+<p></p>
 
 <h3>Extraction Method</h3>
 
@@ -91,7 +89,7 @@ Agency,<br>
 Job Description,<br>
 URL,<br>
 Date extracted,<br>
-Website code (sh or nd)</p>
+Website code</p>
 
 <h3>Writing a Library for a New Site</h3>
 

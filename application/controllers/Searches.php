@@ -14,6 +14,7 @@ protected $searches = array();
 		$this->load->library('table');
 		$this->load->model('searches_model');
 		$this->sites = $this->searches_model->get_sites();
+		$this->load->driver('site', array_column($this->sites, 'class'));
 		$this->searches = $this->searches_model->get_searches();
 	}
 
@@ -88,8 +89,7 @@ protected $searches = array();
 		$search = $this->searches_model->get_search($search_id);
 		if ($this->input->server('REQUEST_METHOD') == 'POST')
 		{
-			$this->load->library($search['site_class']);
-			$output = $this->$search['site_class']->scrape($search);
+			$output = $this->site->$search['site_class']->scrape($search);
 			force_download($search['name'] . '.csv', $output);
 		}
 		$data = array(

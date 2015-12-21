@@ -70,5 +70,15 @@ FROM sites
 ;'
 		)->result_array();
 	}
+
+	public function get_drivers()
+	{
+		return $this->db->query(
+'SELECT
+	sites.class AS class
+FROM sites
+;'
+		)->result_array();
+	}
 	
 }

@@ -1,8 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-include ('Site.php');
-
-class Site_indeed extends Site {
+class Site_indeed extends CI_Driver {
 
 const SITE = 'http://www.indeed.com';
 const SITE_CODE = 'ND';
@@ -13,20 +11,17 @@ const SITE_CODE = 'ND';
 		$url = $search['url'];
 		while ($url)
 		{
-			$dom = self::get_page($url);
-			$xpath = new DomXPath($dom);
+			$dom = $this->get_page($url);
+			$xpath = new DOMXPath($dom);
 			// get URL to next page if any
-			$url = '';
-			$elements = $xpath->query('//div[@class="pagination"]')->item(0)->lastChild;
-			if ($elements->textContent == 'Next' . html_entity_decode('&nbsp;') . '»')
-			{
-				$url = self::SITE . $elements->getAttribute('href');
-			}
+			$elements = $xpath->query('//div[@class="pagination"]');
+			$url = (($elements->length && $elements->item(0)->lastChild->textContent == 'Next' . html_entity_decode('&nbsp;') . '»')
+					? $url = $this->SITE . $elements->item(0)->lastChild->getAttribute('href') : '' );
 			// extract rows from page
 			$elements = $xpath->query('//div[@data-jk]');
 			foreach ($elements as $element)
 			{
-				$output .= self::extract_row($element);
+				$output .= $this->extract_row($element);
 			}
 		}
 		return $output;
@@ -45,20 +40,20 @@ const SITE_CODE = 'ND';
 			'code' => ''
 		);
 		$field = '';
-		$dom = new DomDocument;
+		$dom = new DOMDocument;
 		$dom->appendChild($dom->importNode($row, true));
-		$xpath = new DomXPath($dom);
+		$xpath = new DOMXPath($dom);
 		$field = $xpath->query('//a[@data-tn-element]');
-		$fields['title'] = (($field->length) ? self::clean_field($field->item(0)->textContent) : '');
+		$fields['title'] = (($field->length) ? $this->clean_field($field->item(0)->textContent) : '');
 		$field = $xpath->query('//span[@class="location"]');
-		$fields['city'] = (($field->length) ? self::clean_field($field->item(0)->textContent) : '');
+		$fields['city'] = (($field->length) ? $this->clean_field($field->item(0)->textContent) : '');
 		$field = $xpath->query('//span[@class="company"]');
-		$fields['employer'] = (($field->length) ? self::clean_field($field->item(0)->textContent) : '');
+		$fields['employer'] = (($field->length) ? $this->clean_field($field->item(0)->textContent) : '');
 		$field = $xpath->query('//span[@class="summary"]');
-		$fields['description'] = (($field->length) ? self::clean_field($field->item(0)->textContent) : '');
-		$fields['url'] = self::SITE . '/rc/clk?jk=' . $row->getAttribute('data-jk');
+		$fields['description'] = (($field->length) ? $this->clean_field($field->item(0)->textContent) : '');
+		$fields['url'] = $this->SITE . '/rc/clk?jk=' . $row->getAttribute('data-jk');
 		$fields['date'] = date('Ymd');
-		$fields['code'] = self::SITE_CODE;
+		$fields['code'] = $this->SITE_CODE;
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);
 	}
