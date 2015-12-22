@@ -66,7 +66,7 @@
     }
 </code></pre></p>
 
-<p>After setting the table's title, the code loops through the saved searches. For each search, the code creates a table row containing the search information and functional links. The links are created by appending the search's ID to the desired controller/method.        </p>
+<p>After setting the table's title, the code loops through the saved searches. For each search, the code creates a table row containing the search information and functional links. The links are created by appending the search's ID to the desired controller/method.</p>
 
 <p>Having created the table, the view must then display the form that handles individual searches. This is accomplished by having the controller pass to the view the name of the subview to use. Since the code that displays the searches as a table remains the same regardless of which subview is used, the subview technique saves us from repeating code. Without it, we'd have three complete views (add, edit, and delete), each with the same code to display searches as a table. If we later made a change to the code, we'd have to change three files instead of just one. This doesn't sound too hard, but as the number of files increases, it becomes difficult and inefficient.</p>
 
@@ -74,26 +74,11 @@
 
 <h3>Libraries</h3>
 
-<p></p>
-
-<h3>Extraction Method</h3>
-
-<h4>Information Extracted</h4>
-
-<p>For each row, the application extracts:</p>
-
-<p>Job title,<br>
-City,<br>
-Employer,<br>
-Agency,<br>
-Job Description,<br>
-URL,<br>
-Date extracted,<br>
-Website code</p>
+<p>The application uses CodeIgniter's Driver Libraries feature. The CodeIgniter manual doesn't document this feature correctly, so until it does, <a href="http://forum.codeigniter.com/thread-63839-post-326830.html#pid326830" target="_blank">please see this forum post</a>.</p>
 
 <h3>Writing a Library for a New Site</h3>
 
-<p>To add a site the application can scrape, you will have to do two things. You will have to add the site to the <code>SITES</code> table in the database, and you will have to write the code, just one file, that handles the site. Of course, you will have to study the site's code to determine the best way to extract what you want. The existing site libraries use XPath, but this is not an imposed requirement. Here's how the flow works, starting with the execute method in the controller:</p>
+<p>To add a site the application can scrape, you will have to do two things. You will have to add the site to the <code>SITES</code> table in the database, and you will have to write the code, just one file, that handles the site. Of course, you will also have to study the site's code to determine the best way to extract what you want. The existing site libraries use XPath, but this is not an imposed requirement. Here's how the flow works, starting with the execute method in the controller:</p>
 
 <pre><code>    public function execute($search_id)
     {
@@ -164,8 +149,7 @@ Website code</p>
         //        
         $line = '"' . implode('","', $fields) . '"' . "\r\n";
         return ($line);
-    }
-</code></pre>
+    }</code></pre>
 
 <p>The method declares an array called <code>$fields</code>. The array doesn't <i>have</i> to be associative, but the keys make the code easier to read. It's much easier to assign something to <code>$field['field1']</code> than to remember the element's index number. The array also lets you set default values or create fields that aren't actually extracted from the web page.</p>
 
@@ -186,4 +170,3 @@ Website code</p>
     }</pre></code>
 
 <p>The method trims extra white space, converts HTML codes to characters, removes stray tags, and finally, escapes double quotes.</p>
-
