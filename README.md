@@ -44,8 +44,8 @@ Create the database according to the createdb.sql file. It's a plain text file. 
 Edit the following files:
 
 * config/routes.php - Set the default controller. `$route['default_controller'] = 'searches';`
-* config/database.php - Set up your database. The application's database's name is `cijobs`.
-* config/config.php - Set your base URL, something like `$config['base_url'] = 'http://www.example.com/cijobs/';`
+* config/database.php - Set up your database. The application's database's name is `searchscraper`.
+* config/config.php - Set your base URL, something like `$config['base_url'] = 'http://www.example.com/searchscraper/';`
 
 Run the application.
 

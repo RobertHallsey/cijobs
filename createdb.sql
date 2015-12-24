@@ -1,6 +1,6 @@
-CREATE DATABASE cijobs;
+CREATE DATABASE searchscraper;
 
-USE cijobs;
+USE searchscraper;
 
 CREATE TABLE searches (
   id int(11) NOT NULL AUTO_INCREMENT,

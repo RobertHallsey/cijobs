@@ -2,7 +2,7 @@
 
   <div id="content">
 
-    <h2>Saved Job Searches</h2>
+    <h2>Saved Searches</h2>
 
 <?php
 	if (count($searches) == 0)
@@ -11,7 +11,7 @@
 	}
 	else
 	{
-		$this->table->set_heading('Search Name', 'Job Site', 'Search URL', 'Edit', 'Delete', 'Execute');
+		$this->table->set_heading('Search Name', 'Site', 'Search URL', 'Edit', 'Delete', 'Execute');
 		foreach ($searches as $search)
 		{
 			$this->table->add_row(

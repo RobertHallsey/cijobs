@@ -11,7 +11,7 @@
         </p>
 
         <p>
-          <label for="sites">Job Site</label>
+          <label for="sites">Site</label>
           <select id="sites" name="search[site_id]">
 <?php foreach ($sites as $row):?>
             <option value="<?=$row['id']?>" <?php echo set_select('search[site_id]', $row['id'], ($row['id'] == $search['site_id']))?>><?=$row['name']?></option>
@@ -32,4 +32,4 @@
 
     </form>
 
-      <p><?php echo anchor('searches', 'Add a Job Search'); ?></p>
+      <p><?php echo anchor('searches', 'Add a Search'); ?></p>

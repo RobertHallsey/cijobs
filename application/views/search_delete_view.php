@@ -10,7 +10,7 @@
         </p>
 
         <p>
-          <label for="sites">Job Site</label>
+          <label for="sites">Site</label>
           <input type="text" id="name" name="search[site_name]" value="<?php echo set_value('search[site_name]', $search['site_name']); ?>" size="11" disabled>
         </p>
         
@@ -25,4 +25,4 @@
 
     </form>
 
-      <p><?php echo anchor('searches', 'Add a Job Search'); ?></p>
+      <p><?php echo anchor('searches', 'Add a Search'); ?></p>

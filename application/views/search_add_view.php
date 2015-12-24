@@ -11,7 +11,7 @@
         </p>
 
         <p>
-          <label for="sites">Job Site</label>
+          <label for="sites">Site</label>
           <select id="sites" name="search[site_id]">
             <option value="" selected>Select one</option>
 <?php foreach ($sites as $row):?>
