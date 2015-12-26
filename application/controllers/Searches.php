@@ -40,20 +40,13 @@ protected $searches = array();
 	public function edit($search_id)
 	{
 		$search = $this->searches_model->get_search($search_id);
-		$search['id'] = $search_id;
 		$this->form_validation->set_rules('search[name]', 'Search Name', 'required');
 		$this->form_validation->set_rules('search[site_id]', 'Site', 'required');
 		$this->form_validation->set_rules('search[url]', 'Search URL', 'required');
 		if ($this->form_validation->run())
 		{
-			$search = $this->input->post('search', TRUE);
-			$data = array(
-				'id' => $search_id,
-				'name' => $search['name'],
-				'site_id' => $search['site_id'],
-				'url' => $search['url']
-			);
-			$this->searches_model->update_search($data);
+			$data = $this->input->post('search', TRUE);
+			$this->searches_model->update_search($search_id, $data);
 			redirect();
 		}
 		$data = array(
@@ -92,22 +85,6 @@ protected $searches = array();
 		{
 			$url = $this->input->post('search[url]', true);
 			$output = $this->site->$search['site_class']->scrape($url);
-			force_download($search['name'] . '.csv', $output);
-		}
-		$data = array(
-			'subview' => 'search_execute_view',
-			'sites' => $this->sites,
-			'searches' => $this->searches,
-			'search' => $search
-		);
-		$this->load->view('searches_view', $data);
-
-
-
-		$search = $this->searches_model->get_search($search_id);
-		if ($this->input->server('REQUEST_METHOD') == 'POST')
-		{
-			$output = $this->site->$search['site_class']->scrape($search);
 			force_download($search['name'] . '.csv', $output);
 		}
 		$data = array(

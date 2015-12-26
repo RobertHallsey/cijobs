@@ -102,10 +102,9 @@
 
 <p>Now let's look at the <code>scrape()</code> method.</p>
 
-<pre><code>    public function scrape($search)
+<pre><code>    public function scrape($url)
     {
         $output = '';
-        $url = $search['url'];
         while ($url)
         {
             $dom = self::get_page($url);
@@ -169,4 +168,4 @@
         return $field;
     }</pre></code>
 
-<p>For your convenience, the <code>libraries/Site/drivers</code> folder includes a file called <code>Site_template.php</code>. If it suits your purposes, you can copy it just fill in the code needed for the website you're working with.</p>
+<p>For your convenience, the <code>libraries/Site/drivers</code> folder includes a file called <code>Site_template.php</code>. If it suits your purposes, you can copy it and just fill in the code needed for the website you're working with.</p>

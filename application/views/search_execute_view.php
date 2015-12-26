@@ -17,7 +17,7 @@
         <p>
           <label for="url">Search URL</label>
           <input type="text" id="url" name="search[url]" value="<?php echo set_value('search[url]', $search['url']); ?>" size="105" maxlength="254" autofocus>
-          <?php echo form_error('search[url]', '<br>', ''); ?>
+          <?php echo form_error('search[url]', '          <br>', '<br>' . PHP_EOL); ?>
         </p>
 
         <p><input type="submit" name="submit" value="Ok"></p>

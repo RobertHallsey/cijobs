@@ -49,9 +49,9 @@ WHERE searches.id = ' . $search_id . '
 		return $this->db->insert_id();
 	}
 	
-	public function update_search($data)
+	public function update_search($search_id, $data)
 	{
-		$this->db->update('searches', array_slice($data, 1), array_slice($data, 0, 1));
+		$this->db->update('searches', $search_id, $data);
 	}
 
 	public function delete_search($data)
@@ -65,16 +65,6 @@ WHERE searches.id = ' . $search_id . '
 'SELECT
 	sites.id AS id,
 	sites.name AS name,
-	sites.class AS class
-FROM sites
-;'
-		)->result_array();
-	}
-
-	public function get_drivers()
-	{
-		return $this->db->query(
-'SELECT
 	sites.class AS class
 FROM sites
 ;'
