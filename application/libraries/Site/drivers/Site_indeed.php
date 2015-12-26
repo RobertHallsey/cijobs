@@ -5,10 +5,9 @@ class Site_indeed extends CI_Driver {
 const SITE = 'http://www.indeed.com';
 const SITE_CODE = 'ND';
 
-	public function scrape($search)
+	public function scrape($url)
 	{
 		$output = '';
-		$url = $search['url'];
 		while ($url)
 		{
 			$dom = $this->get_page($url);

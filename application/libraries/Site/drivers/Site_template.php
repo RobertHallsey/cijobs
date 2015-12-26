@@ -2,10 +2,9 @@
 
 class Site_template extends CI_Driver {
 
-	public function scrape($search)
+	public function scrape($url)
 	{
 		$output = '';
-		$url = $search['url'];
 		while ($url)
 		{
 			$dom = $this->get_page($url);

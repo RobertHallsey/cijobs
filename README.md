@@ -37,7 +37,7 @@ Place the application files from the zip into their corresponding folders in you
 
 Note that the file Site_template.php is just that, a template to help you create your own drivers. More about this in the documentation file.
 
-Place the assets folder from the zip into the root of your CodeIgniter installation. It should be at the same level as the application folder.
+Place the assets folder from the zip into the root of your CodeIgniter installation. It should be at the same level as the application folder. The folder contains a single file, `style.css`, which you can use to set the application's appearance.
 
 Create the database according to the createdb.sql file. It's a plain text file. Open and copy the contents into the SQL command interface of whatever SQL administrator you use.
 

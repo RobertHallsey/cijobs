@@ -5,21 +5,16 @@ class Site_simply extends CI_Driver {
 const SITE = 'http://www.simplyhired.com';
 const SITE_CODE = 'SH';
 
-	public function scrape($search)
+	public function scrape($url)
 	{
 		$output = '';
-		$url = $search['url'];
 		while ($url)
 		{
 			$dom = $this->get_page($url);
 			$xpath = new DOMXPath($dom);
 			// get URL to next page if any
-			$url = '';
 			$elements = $xpath->query('//a[@class="evtc next-pagination"]');
-			if ($elements->length == 1)
-			{
-				$url = self::SITE . $elements->item(0)->getAttribute('href');
-			}
+			$url = (($elements->length) ? self::SITE . $elements->item(0)->getAttribute('href') : '');
 			// extract rows from page
 			$elements = $xpath->query('//div[@class="card js-job"]');
 			foreach ($elements as $element)

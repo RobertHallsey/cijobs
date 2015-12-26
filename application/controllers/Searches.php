@@ -87,6 +87,24 @@ protected $searches = array();
 	public function execute($search_id)
 	{
 		$search = $this->searches_model->get_search($search_id);
+		$this->form_validation->set_rules('search[url]', 'Search URL', 'required');
+		if ($this->form_validation->run())
+		{
+			$url = $this->input->post('search[url]', true);
+			$output = $this->site->$search['site_class']->scrape($url);
+			force_download($search['name'] . '.csv', $output);
+		}
+		$data = array(
+			'subview' => 'search_execute_view',
+			'sites' => $this->sites,
+			'searches' => $this->searches,
+			'search' => $search
+		);
+		$this->load->view('searches_view', $data);
+
+
+
+		$search = $this->searches_model->get_search($search_id);
 		if ($this->input->server('REQUEST_METHOD') == 'POST')
 		{
 			$output = $this->site->$search['site_class']->scrape($search);

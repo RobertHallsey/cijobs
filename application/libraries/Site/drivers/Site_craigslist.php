@@ -5,17 +5,19 @@ class Site_craigslist extends CI_Driver {
 const SITE = 'http://sfbay.craigslist.com';
 const SITE_CODE = 'CL';
 
-	public function scrape($search)
+	public function scrape($url)
 	{
 		$output = '';
-		$url = $search['url'];
 		while ($url)
 		{
 			$dom = $this->get_page($url);
 			$xpath = new DOMXPath($dom);
 			// find next page
-			$elements = $xpath->query('//div[contains(@class, "paginator")]');
-			$url = ($elements->length == 2 ? '' : self::SITE . $xpath->query('//a[@class="button next"]')->item(0)->getAttribute('href'));
+			$url = '';
+			if (strpos($xpath->query('//div[contains(@class, "paginator")]')->item(0)->getAttribute('class'), 'lastpage') === false)
+			{
+				$url = self::SITE . $xpath->query('//a[@class="button next"]')->item(0)->getAttribute('href');
+			}
 			// extract rows from page
 			$elements = $xpath->query('//p[@class="row"]');
 			foreach ($elements as $element)

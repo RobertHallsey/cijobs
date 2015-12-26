@@ -10,7 +10,7 @@
 
 <p>You can also execute the search. When you do so, the application will show the search and allow you to edit the URL. This is in case you have a standard search that you would like to run slightly differently just this once. After you click Ok, a CSV file with the name of your search will download. This should not take more than a few seconds, no longer than it would take to download the individual web pages in the search. The web pages are not particularly large, so with high-speed internet, even ten seconds is enough to download hundreds of rows. Again, please don't run the application carelessly or abusively, though I imagine both websites have measures to prevent abusive downloading.</p>
 
-<p>You should know that even recent versions of Excel don't handle UTF-8 correctly when loading CSV files. It displays some multi-byte characters as multipe single-byte characters. Depending on your searches, this may not matter or it may matter very much. The workaround is to <i>import</i> the files instead of opening them. Even very old Excel versions have an import function under the Tools menu. When you import a file, you are able to select the encoding, something you can't do when you merely open it.</p>
+<p>You should know that even recent versions of Excel don't handle UTF-8 correctly when loading CSV files, displaying some multi-byte characters as multipe single-byte characters. Depending on your searches, this may not matter or it may matter very much. The workaround is to <i>import</i> the files instead of opening them. Even very old Excel versions have an import function under the Tools menu. When you import a file, you are able to select the encoding, something you can't do when you merely open it.</p>
 
 <h2>Technical Documentation</h2>
 
@@ -157,7 +157,7 @@
 
 <p>After your code, the method creates a CSV line from the <code>$fields[]</code> array. PHP has functions that read and write CSV data, but Excel is picky, and I've found that using <code>implode()</code> is more reliable.</p>
 
-<p>Regardless of the method you use to extract fields, the static method <code>clean_field()</code> can ensure your fields are "clean."</p>
+<p>Regardless of the method you use to extract fields, the static method <code>clean_field()</code> can ensure your fields are "clean." The method trims extra white space, converts HTML codes to characters, removes stray tags, and finally, escapes double quotes.</p>
 
 <code><pre>    public function clean_field ($field)
     {
@@ -169,4 +169,4 @@
         return $field;
     }</pre></code>
 
-<p>The method trims extra white space, converts HTML codes to characters, removes stray tags, and finally, escapes double quotes.</p>
+<p>For your convenience, the <code>libraries/Site/drivers</code> folder includes a file called <code>Site_template.php</code>. If it suits your purposes, you can copy it just fill in the code needed for the website you're working with.</p>
