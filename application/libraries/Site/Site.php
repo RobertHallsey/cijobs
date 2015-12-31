@@ -22,7 +22,7 @@ class Site extends CI_Driver_Library {
 		$page = curl_init($url);
 		curl_setopt_array($page, $curl_options);
 		$dom = new DOMDocument;
-		@$dom->loadHTML(curl_exec($page), LIBXML_NOBLANKS | LIBXML_NOWARNING | LIBXML_NOERROR);
+		$dom->loadHTML(curl_exec($page), LIBXML_NOBLANKS | LIBXML_NOWARNING | LIBXML_NOERROR);
 		curl_close($page);
 		return $dom;
 	}
@@ -30,10 +30,11 @@ class Site extends CI_Driver_Library {
 	public function clean_field ($field)
 	{
 		$field = trim($field);
-		$field = preg_replace('/\s\s+/', ' ', $field);
 		$field = html_entity_decode($field, ENT_QUOTES);
+		$field = preg_replace('/\s\s+/', ' ', $field);
 		$field = strip_tags($field);
 		$field = str_replace('"', '""', $field);
+		$field = trim($field, " \t\n\r\0\x0B\xA0");
 		return $field;
 	}
 

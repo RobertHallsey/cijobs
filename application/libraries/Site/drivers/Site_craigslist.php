@@ -51,7 +51,7 @@ const SITE_CODE = 'CL';
 		$field = $xpath->query('//span[@class="l2"]')->item(0)->textContent;
 		if (preg_match('/ *?\((.*?)\)/', $field, $matches)) $fields['city'] = $matches[1];
 		$xpath->query('//time')->item(0)->getAttribute('datetime');
-		$fields['date'] = date('Ymd', strtotime($xpath->query('//time')->item(0)->getAttribute('datetime')));
+		$fields['date'] = date('Ymd');
 		$fields['code'] = self::SITE_CODE;
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);

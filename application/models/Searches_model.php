@@ -49,9 +49,9 @@ WHERE searches.id = ' . $search_id . '
 		return $this->db->insert_id();
 	}
 	
-	public function update_search($search_id, $data)
+	public function update_search($id, $data)
 	{
-		$this->db->update('searches', $search_id, $data);
+		$this->db->update('searches', $data, array('id' => $id));
 	}
 
 	public function delete_search($data)
