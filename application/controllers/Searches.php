@@ -14,8 +14,8 @@ protected $searches = array();
 		$this->load->library('table');
 		$this->load->model('searches_model');
 		$this->sites = $this->searches_model->get_sites();
-		$this->load->driver('site', array_column($this->sites, 'class'));
 		$this->searches = $this->searches_model->get_searches();
+		$this->load->driver('site', array_column($this->sites, 'class'));
 	}
 
 	public function index()
@@ -83,8 +83,8 @@ protected $searches = array();
 		$this->form_validation->set_rules('search[url]', 'Search URL', 'required');
 		if ($this->form_validation->run())
 		{
-			$url = $this->input->post('search[url]', true);
-			$output = $this->site->$search['site_class']->scrape($url);
+			$search['url'] = $this->input->post('search[url]', true);
+			$output = $this->site->scrape($search);
 			force_download($search['name'] . '.csv', $output);
 		}
 		$data = array(

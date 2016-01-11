@@ -5,28 +5,23 @@ class Site_indeed extends CI_Driver {
 const SITE = 'http://www.indeed.com';
 const SITE_CODE = 'ND';
 
-	public function scrape($url)
+	public function get_next_page_url($xpath)
 	{
-		$output = '';
-		while ($url)
+		$url = '';
+		$elements = $xpath->query('//div[@class="pagination"]');
+		if ($elements->length && $elements->item(0)->lastChild->textContent == 'Next' . html_entity_decode('&nbsp;') . '»')
 		{
-			$dom = $this->get_page($url);
-			$xpath = new DOMXPath($dom);
-			// get URL to next page if any
-			$elements = $xpath->query('//div[@class="pagination"]');
-			$url = (($elements->length && $elements->item(0)->lastChild->textContent == 'Next' . html_entity_decode('&nbsp;') . '»')
-					? $url = self::SITE . $elements->item(0)->lastChild->getAttribute('href') : '' );
-			// extract rows from page
-			$elements = $xpath->query('//div[@data-jk]');
-			foreach ($elements as $element)
-			{
-				$output .= $this->extract_row($element);
-			}
+			$url = self::SITE . $elements->item(0)->lastChild->getAttribute('href');
 		}
-		return $output;
+		return $url;
 	}
-	
-	public function extract_row ($row)
+
+	public function get_rows($xpath)
+	{
+		return $xpath->query('//div[@data-jk]');
+	}
+
+	public function get_fields($row)
 	{
 		$fields = array(
 			'title' => '',

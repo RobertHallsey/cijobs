@@ -2,29 +2,19 @@
 
 class Site_template extends CI_Driver {
 
-	public function scrape($url)
+	public function get_next_page_url($xpath)
 	{
-		$output = '';
-		while ($url)
-		{
-			$dom = $this->get_page($url);
-			$xpath = new DOMXPath($dom);
-			// find next page
-			// your code goes here
-			// $url = next page or '' 
-			// extract rows from page
-			// your code goes here
-			// $elements = $xpath->query('your-rows');
-			// or load $elements by some other means
-			foreach ($elements as $element)
-			{
-				$output .= $this->extract_row($element);
-			}
-		}
-		return $output;
+		$url = '';
+		// code to find url to next page
+		return $url;
+	}
+
+	public function get_rows($xpath)
+	{
+		return $xpath->query('put-your-query-here');
 	}
 	
-	public function extract_row($row)
+	public function get_fields($row)
 	{
 		$fields = array(
 			// 'field_1' => '',
@@ -36,7 +26,7 @@ class Site_template extends CI_Driver {
 		$dom->appendChild($dom->importNode($row, true));
 		$xpath = new DOMXPath($dom);
 		// your code goes here
-		// extract data from row and
+		// get data from row and
 		// assign it to $fields array
 		$line = '"' . implode('","', $fields) . '"' . "\r\n";
 		return ($line);

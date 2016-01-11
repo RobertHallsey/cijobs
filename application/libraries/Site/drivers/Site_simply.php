@@ -5,27 +5,23 @@ class Site_simply extends CI_Driver {
 const SITE = 'http://www.simplyhired.com';
 const SITE_CODE = 'SH';
 
-	public function scrape($url)
+	public function get_next_page_url($xpath)
 	{
-		$output = '';
-		while ($url)
+		$url = '';
+		$elements = $xpath->query('//a[@class="evtc next-pagination"]');
+		if ($elements->length)
 		{
-			$dom = $this->get_page($url);
-			$xpath = new DOMXPath($dom);
-			// get URL to next page if any
-			$elements = $xpath->query('//a[@class="evtc next-pagination"]');
-			$url = (($elements->length) ? self::SITE . $elements->item(0)->getAttribute('href') : '');
-			// extract rows from page
-			$elements = $xpath->query('//div[@class="card js-job"]');
-			foreach ($elements as $element)
-			{
-				$output .= $this->extract_row($element);
-			}
+			$url = self::SITE . $elements->item(0)->getAttribute('href');
 		}
-		return $output;
+		return $url;
 	}
-	
-	public function extract_row ($row)
+
+	public function get_rows($xpath)
+	{
+		return $xpath->query('//div[@class="card js-job"]');
+	}
+		
+	public function get_fields($row)
 	{
 		$fields = array(
 			'title' => '',
