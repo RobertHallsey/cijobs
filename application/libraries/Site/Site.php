@@ -29,12 +29,12 @@ class Site extends CI_Driver_Library {
 	
 	public function clean_field ($field)
 	{
-		$field = trim($field);
+		$field = str_replace(chr(0xC2) . chr(0xA0), ' ', $field);
+		$field = preg_replace('/[\h\v]+/', ' ', $field);
 		$field = html_entity_decode($field, ENT_QUOTES);
-		$field = preg_replace('/\s\s+/', ' ', $field);
 		$field = strip_tags($field);
+		$field = trim($field);
 		$field = str_replace('"', '""', $field);
-		$field = trim($field, " \t\n\r\0\x0B\xA0");
 		return $field;
 	}
 
