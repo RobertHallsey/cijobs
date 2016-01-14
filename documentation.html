@@ -8,164 +8,167 @@
 
 <p>Fill out the form under Add a New Search. Give the search you're about to save a meaningful name, and select which site it's from. Then paste the URL you copied to the clipboard into the Search URL field. Now click Ok to save the search and watch it appear in the list of saved searches. You edit or delete the saved by clicking the links to the right.</p>
 
-<p>You can also execute the search. When you do so, the application will show the search and allow you to edit the URL. This is in case you have a standard search that you would like to run slightly differently just this once. After you click Ok, a CSV file with the name of your search will download. This should not take more than a few seconds, no longer than it would take to download the individual web pages in the search. The web pages are not particularly large, so with high-speed internet, even ten seconds is enough to download hundreds of rows. Again, please don't run the application carelessly or abusively, though I imagine both websites have measures to prevent abusive downloading.</p>
+<p>You can also execute the search. When you do so, the application will show the search and allow you to edit the URL. This is in case you have a standard search that you would like to run slightly differently just this once. After you click Ok, a CSV file with the name of your search will download. This should not take more than a few seconds, no longer than it would take to download the individual web pages in the search. The web pages are not particularly large, so with high-speed internet, even ten seconds is enough to download hundreds of rows. Again, please don't run the application carelessly or abusively, though I imagine many websites have measures to prevent abusive downloading.</p>
 
 <p>You should know that even recent versions of Excel don't handle UTF-8 correctly when loading CSV files, displaying some multi-byte characters as multipe single-byte characters. Depending on your searches, this may not matter or it may matter very much. The workaround is to <i>import</i> the files instead of opening them. Even very old Excel versions have an import function under the Tools menu. When you import a file, you are able to select the encoding, something you can't do when you merely open it.</p>
 
-<h2>Technical Documentation</h2>
+<p>This is a real application. I use it myself. However, despite being very simple, it uses some more advanced PHP and CodeIgniter features, so it can serve as a nice step up from the beginning tutorials. For this reason, the rest of the documentation delves into the application itself. I hope you find it useful.</p>
 
-<h3>Controllers</h3>
+<h2>The Application's Database</h2>
 
-<p>The application has one controller, <code>Searches.php</code>. The controller's constructor loads what it needs, including the sites and saved searches from the database. There is no pagination mechanism for the data because the application is not intended to support a large number of searches or sites.</p>
+<p>The database stores searches. A stored search consists of row id, name, a starting search URL, and the id of the site being searched. The needs to know which site is being searched so it can determine which driver to use, and it could have gotten this information from the search URL, but it doesn't. The good reason for this is that you can then use the same driver for different websites, or at least for different URLs. Some companies have websites under different TLDs, and some companies use subdomains for various purposes, appearing to be different websites though they are really just one. 
 
-<p>The controller has four methods: index, edit, delete, and execute. The index method performs the add function.</p>
+<p>The database also stores sites. A stored site consists of row id, site name, and driver name. The driver name is the name of the driver class file without the file extension and without the driver name "Sites," so if you added a driver class file called <code>Sites_mysearch.php</code>, the driver name in the database would be just <code>mysearch</code>.</p>
 
-<p>The index method sets form validation rules and then tests for a successful form validation. If the form validates successfully, it means it was submitted with all its fields completed, so the data is saved to the database and the application redirects to itself. From the user's point, the screen refreshes to include the added search. If the form does not validate, it means that either the form hasn't yet been presented to the user, or that the user has submitted an incomplete form. Either way, the method loads into an array the information the view will need and invokes the view.</p>
+<p>Here is the SQL code in the file createdb.sql.</p>
 
-<p>The edit method is called with the ID of the search to edit. This ID is encoded in the URL the user clicks to invoke the method, and this will be explained in the View section. Once the method has the ID and retrieves the search from the database, it starts looking like the index method. It sets form validations, tests for valid form, and then either saves the edited search or refreshes the screen.</p>
+<pre><code>CREATE TABLE searches (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  site_id int(11) NOT NULL,
+  name varchar(32) NOT NULL,
+  url varchar(254) NOT NULL,
+  PRIMARY KEY (id)
+);
 
-<p>The delete method also must be given the ID of the search to delete, but it performs no form validation. It's not necessary since the only question is whether to delete the search or not, so the method instead tests to see if the form was submitted at all. This is the test that does that: <code>if ($this->input->server('REQUEST_METHOD') == 'POST')</code>. If the form was submitted, if the user pressed OK, the search is deleted and the screen refreshes, no longer showing the deleted search.</p>
 
-<p>The execute method shows the search in a form, allowing you to temporarily modify the search's URL. When you press Ok, the search will use your modified URL without saving it in the database. This allows you to do just-once searches without having to first add them and then delete them. After you press Ok, the method loads the search and then loads from the application's library the class that will execute the search. It then executes the search and downloads the resulting file. The screen does not refresh because it can't. Under PHP, you can send HTTP headers that download a file <i>or</i> that redirect to a page, but you can't do both. Notice that the method executes the search using a variable reference. You may have so far seen only direct references, like <code>$this->customer_model->get_rows()</code>, but PHP allows you to put "customer_model" into a variable <code>$foo</code> and then invoke the method with <code>$this->$foo->get_rows()</code>. Finally, <code>force_download()</code> is a CodeIgniter helper function.</p>
+CREATE TABLE sites (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  name varchar(32) NOT NULL,
+  driver varchar(16) NOT NULL,
+  PRIMARY KEY (id)
+);</code></pre>
 
-<h3>Views</h3>
+<h2>Driver Libraries</h2>
 
-<p>The application has only one view, <code>searches_view.php</code>, which is constructed from several parts. The view itself invokes other views, including <code>header.php</code> at the very start and <code>footer.php</code> at the very end. The technique of separating header and footer code into their own files is particularly useful when you have more than one view because then you don't repeat header and footer code in every view.</p>
+<p>The application uses CodeIgniter's Driver Libraries feature. A driver library consists of a parent class and one or more child classes. The parent and child classes are contained in a single folder for that driver library, so moving and packaging them is very easy. The parent and child classes can invoke methods in each other but not between child classes. This lets you put all the methods common to all child classes in the parent class, leaving only the methods particular to each child class in the child classes. The CodeIgniter manual doesn't document this feature correctly, so until it does, <a href="http://forum.codeigniter.com/thread-63839-post-326830.html#pid326830" target="_blank">please see this forum post</a>.</p>
 
-<p>The view is invoked with an array that passes this data.</p>
+<p>In any case, the application has a driver library folder called <code>Sites</code>, within which is the class <code>Sites.php</code> and a <code>drivers</code> folder with various driver class files. One of these driver class files is <code>Sites_template.php</code>, provided for your convenience should you write your own drivers.</p>
 
-<p><pre><code>
-    $data = array(
-        'subview' => 'search_add_view',
-        'sites' => $this->sites,
-        'searches' => $this->searches,
-        'search' => $search
-    );
-    $this->load->view('searches_view', $data);
-</code></pre></p>
+<p>Before writing your own drivers, you should be basically familiar with DOM and XPath. DOM (Document Object Model) is an ordered and organized representation of the messy HTML on a web page, and XPath is a fast and efficient way of searching and extracting data from the DOM. For these purposes, you really only need to learn the XPath query syntax.</p>
 
-<p>The elements in the <code>$data</code> array are extracted as variables in searches_view.php. If there are any saved searches, the method builds a table from them, including hyperlinks to edit, delete, and execute each one. That happens in this code.</p>
+<h2>How the Application Works</h2>
 
-<p><pre><code>
-    if (count($searches))
-    {
-        $this->table->set_heading('Search Name', 'Site', 'Search URL', 'Edit', 'Delete', 'Execute');
-        foreach ($searches as $search)
+<p>Here is the process from when a search is executed and the Ok button is clicked. See the <code>execute</code> method in the <code>Searches</code> controller. After the Ok button is clicked, the form validates unless the URL field was cleared. The controller, having loaded the drivers in its constructor, invokes the <code>scrape</code> method, passing it the URL and the driver. The <code>scrape</code> method should return the scraped rows in CSV format in all one long string. If the method finds nothing to scrape, it returns an empty string.</p>
+
+<p>Now let's pick up in the <code>scrape</code>method. The method receives the arguments as <code>$url</code> and <code>$driver</code>, sets some cURL options, and then enters into a loop as long as <code>$url</code> evaluates true. The method then creates a cURL object, from which it creates a DOM object, from which it creates an XPath object. It then makes the first call to the actual driver, to the method <code>get_next_page_url</code>, passing it the XPath object for the page. In the driver, the method <code>get_next_page_url</code> then queries the XPath object to find the link to the next page. When it doesn't find that link because it already on the last page, <code>$url</code> is cleared and the loop terminates, returning control to the controller.</p>
+
+<p>Having found the URL to the next page, the <code>scrape</code> method now finds the rows it seeks by calling the <code>get_rows</code> method. Again, in the driver, this method should query the XPath object passed to it and return the results. In <code>scrape</code>, the call to this method is embedded in a <code>foreach</code> loop that peels off a <code>$row</code> at a time. All successful XPath queries return an objecto of type NodeList, even when the list contains only one object of type Node. This means that <code>$row</code>, not being an object of type XPath, cannot be queried. Therefore, to use XPath to get the fields you want from the row, the row must be made into an XPath object. The method does this by creating a new DOM object, appending the row to it, and then creating an XPath object from the DOM object, which now contains the row. This is done to make things consistent for the child driver files. This way, every method in the driver works from an XPath object passed to it as an argument.</p>
+
+<p>Having retrieved the rows, the <code>scrape</code> method then invokes the <code>get_fields</code> method for each within the loop described above. The <code>get_fields</code> method returns an array with the extracted fields, which the <code>scrape</code> method can then add to <code>$output</code> after formatting them as CSV.</p>
+
+<h2>Writing Your Own Drivers</h2>
+
+<p>Here is the driver template code with the three required methods declared. In <code>get_next_page_url</code>, <code>$xpath</code> contains an XPath object for the entire page. Your query needs to find the URL to the next page. Typically, last pages have no link to a next page, so the method needs to return an empty string in that case. In <code>get_rows</code>, <code>$xpath</code> again contains an XPath object for the entire page. This time your query needs to return just the rows in the search results. Keep in mind, XPath queries always return objects of type DOMNodeList, even when only one node is found.</p>
+
+<p>Finally, in <code>get_fields</code>, you get the data you want from each row. This row is passed to the method not as an XPath object but as a DOMNode object. That's why the method must first create a DOMDocument object, add the DOMNode passed to it, and only then create an XPath object from it. Now we're back to querying <code>$xpath</code>, but this time the object contains only one row and not the entire page. This greatly simplifies getting the data you want from it.</p>
+
+<pre><code>    class Site_template extends CI_Driver {
+
+        public function get_next_page_url($xpath)
         {
-            $this->table->add_row(
-                $search['name'], $search['site_name'], $search['url'],
-                anchor('searches/edit/' . $search['id'], 'Edit'), 
-                anchor('searches/delete/' . $search['id'], 'Delete'),
-                anchor('searches/execute/' . $search['id'], 'Execute'));
+            $url = '';
+            // xpath query and other code to find url to next page
+            return $url;
         }
-        echo $this->table->generate();
-    }
-    else
-    {
-        echo '&lt;p>There are no saved searches.&lt;p/p>';
-    }
-</code></pre></p>
 
-<p>After setting the table's title, the code loops through the saved searches. For each search, the code creates a table row containing the search information and functional links. The links are created by appending the search's ID to the desired controller/method.</p>
-
-<p>Having created the table, the view must then display the form that handles individual searches. This is accomplished by having the controller pass to the view the name of the subview to use. Since the code that displays the searches as a table remains the same regardless of which subview is used, the subview technique saves us from repeating code. Without it, we'd have three complete views (add, edit, and delete), each with the same code to display searches as a table. If we later made a change to the code, we'd have to change three files instead of just one. This doesn't sound too hard, but as the number of files increases, it becomes difficult and inefficient.</p>
-
-<p>The subview files have code in common too, and the same technique of separating common code could be used but has not been. That is left as an exercise for anyone who wants to.</p>
-
-<h3>Libraries</h3>
-
-<p>The application uses CodeIgniter's Driver Libraries feature. The CodeIgniter manual doesn't document this feature correctly, so until it does, <a href="http://forum.codeigniter.com/thread-63839-post-326830.html#pid326830" target="_blank">please see this forum post</a>.</p>
-
-<h3>Writing a Library for a New Site</h3>
-
-<p>To add a site the application can scrape, you will have to do two things. You will have to add the site to the <code>SITES</code> table in the database, and you will have to write the code, just one file, that handles the site. Of course, you will also have to study the site's code to determine the best way to extract what you want. The existing site libraries use XPath, but this is not an imposed requirement. Here's how the flow works, starting with the execute method in the controller:</p>
-
-<pre><code>    public function execute($search_id)
-    {
-        $search = $this->searches_model->get_search($search_id);
-        if ($this->input->server('REQUEST_METHOD') == 'POST')
+        public function get_rows($xpath)
         {
-            $this->load->library($search['site_class']);
-            $output = $this->$search['site_class']->scrape($search);
-            force_download($search['name'] . '.csv', $output);
+            return $xpath->query('put-your-query-here');
+        }
+        
+        public function get_fields($row)
+        {
+            $fields = array(
+                // 'field_1' => '',
+                // 'field_2' => '',
+                // 'field_3' => '',
+                // whatever fields you want
+            );
+            $dom = new DOMDocument;
+            $dom->appendChild($dom->importNode($row, true));
+            $xpath = new DOMXPath($dom);
+            // your code goes here
+            // get data from row and
+            // assign it to $fields array
+            $line = '"' . implode('","', $fields) . '"' . "\r\n";
+            return ($line);
+        }
+    }</pre></code>
+	
+<h2>Controller</h2>
+
+<p>The application has only one controller, <code>Searches.php</code>. This is a common code layout (I don't want to say pattern) for controller methods that process forms. You start by setting validation rules and then checking if the form validated. If the user submitted the form and it validates, the data is then processed, whether this be an insert, update, or deletion, and finally, a redirect sends control to another controller or back to itself. If validation fails, either because of error or because the form has not yet been displayed, control passes through to build an array with data for the view, and then to load the view.</p>
+
+<pre><code>    public function index()
+    {
+        $this->form_validation->set_rules('search[name]', 'Search Name', 'required');
+        $this->form_validation->set_rules('search[site_id]', 'Site', 'required');
+        $this->form_validation->set_rules('search[url]', 'Search URL', 'required');
+        if ($this->form_validation->run())
+        {
+            $data = $this->input->post('search', TRUE);
+            $search_id = $this->searches_model->add_search($data);
+            redirect();
         }
         $data = array(
-            'subview' => 'search_execute_view',
-            'sites' => $this->sites,
-            'searches' => $this->searches,
-            'search' => $search
+            'subview' => 'search_add_view',
+            'sites' => $this->site_list,
+            'searches' => $this->searches
         );
         $this->load->view('searches_view', $data);
     }</code></pre>
+	
+<p>The above code performed an insert. In the case of an update, it's not much more complicated. The edit method would usually be invoked by the user clicking on a link that you had previously provided and which included the id of the row to update. The URL might be <code>http://www.example.com/shop/products/edit/3</code>, so 3 would automatically be passed to the edit method. The edit method takes that id and uses it to retrieve the rest of the row. The view will then populate the form with the row's data.</p>
 
-<p>If the user clicks Ok to execute the search, the controller uses PHP's variable function feature to invoke the site's <code>scrape()</code> method and give it the search profile. The site's <code>scrape()</code> method then returns a string in <code>$output</code> consisting of the CSV file to download. So the transaction comes down to "here's a search profile, now give me the CSV output from executing that search."</p>
+<pre><code>	public function edit($search_id)
+	{
+		$search = $this->searches_model->get_search($search_id);
+		$this->form_validation->set_rules('search[name]', 'Search Name', 'required');
+		$this->form_validation->set_rules('search[site_id]', 'Site', 'required');
+		$this->form_validation->set_rules('search[url]', 'Search URL', 'required');
+		if ($this->form_validation->run())
+		{</code></pre>
+		
+<h2>Using the Driver Library</h2>
 
-<p>Now let's look at the <code>scrape()</code> method.</p>
+</p>In the controller's constructor, the line <code>$this->load->driver('sites', array_column($this->site_list, 'driver'));</code> loads the driver library and makes its methods available. In the controller's execute method, the line <code>$output = $this->sites->scrape($search);</code> passes the driver name to the <code>scrape()</code> method, which tells the <code>scrape()</code> method which of the drivers to use.</p>
 
-<pre><code>    public function scrape($url)
-    {
-        $output = '';
-        while ($url)
-        {
-            $dom = self::get_page($url);
-            $xpath = new DOMXPath($dom);
-            //
-            // YOU MUST PROVIDE THIS CODE
-            // $url = URL to the next page or '' if last page
-            //
-            // YOU MUST PROVIDE THIS CODE
-            // $elements = $xpath->query('some-query-that-gets-you-the-rows');
-            //
-            foreach ($elements as $element)
-            {
-                $output .= self::extract_row($element);
-            }
-        }
-        return $output;
-    }</code></pre>
+<h2>Cleaning Field Data for CSV</h2>
 
-<p>The <code>scrape()</code> method receives the search profile in the array <code>$search</code>, and then enters a loop that continues until the variable <code>$url</code> no longer evaluates to a boolean true. Within the loop, the method uses the search URL to create a DOMDocument object in <code>$dom</code>, and then an DOMXPath object. Now comes the part that you must supply. You must write the XPath query that retrieves the URL to the next page, and if there is no next page, you must clear the <code>$url</code> variable to avoid an infinite loop. After that, you must write the XPath query that extracts the rows you want from the web page being processed. The method then loops through all the rows returned in the variable <code>$elements</code>. Note that, strictly speaking, you do not <i>have</i> to use XPath. You can also loop through the DOM and find what you want that way, but once you learn the query syntax, XPath is easy, fast, and efficient.</p>
-
-<p>Now let's look at the <code>extract_row()</code> method.
-
-<pre><code>    public function extract_row ($row)
-    {
-        // YOU MUST PROVIDE THIS CODE
-        // $fields = array(
-        //     'field1' => '',
-        //     'field2' => '',
-        //     'field3' => '',
-        //     whatever fields you want
-        // );
-        //
-        $dom = new DOMDocument;
-        $dom->appendChild($dom->importNode($row, true));
-        $xpath = new DOMXPath($dom);
-        //
-        // YOU MUST PROVIDE THIS CODE
-        // extract the fields you want
-        // $fields['field1'] = some-value
-        //        
-        $line = '"' . implode('","', $fields) . '"' . "\r\n";
-        return ($line);
-    }</code></pre>
-
-<p>The method declares an array called <code>$fields</code>. The array doesn't <i>have</i> to be associative, but the keys make the code easier to read. It's much easier to assign something to <code>$field['field1']</code> than to remember the element's index number. The array also lets you set default values or create fields that aren't actually extracted from the web page.</p>
-
-<p>The method then creates a DOMDocument object in <code>$dom</code> and adds the DOM element contained in <code>$row</code> to it. Now that it has a complete DOMDocument object, the method then creates a DOMXPath object from it. You then provide the code that extracts the fields. You might use <code>$xpath->query()</code> but you don't have to. See the included site libraries for examples.</p>
-
-<p>After your code, the method creates a CSV line from the <code>$fields[]</code> array. PHP has functions that read and write CSV data, but Excel is picky, and I've found that using <code>implode()</code> is more reliable.</p>
-
-<p>Regardless of the method you use to extract fields, the static method <code>clean_field()</code> can ensure your fields are "clean." The method trims extra white space, converts HTML codes to characters, removes stray tags, and finally, escapes double quotes.</p>
+<p>Text snipped from a web page doesn't always translate well into Excel because the text can include control characters, vertical white spaces, HTML codes, etc. To clean fields up before assigning them to the <code>$fields</code> array, the parent class has a method you can invoke from your driver files with <code>$this->clean_field($field)</code>. The method returns <code>$field</code> cleaned as follows:</p>
 
 <code><pre>    public function clean_field ($field)
     {
-        $field = trim($field);
-        $field = preg_replace('/\s\s+/', ' ', $field);
-        $field = html_entity_decode($field, ENT_QUOTES);
-        $field = strip_tags($field);
-        $field = str_replace('"', '""', $field);
-        return $field;
+		$field = html_entity_decode($field, ENT_QUOTES);
+		$field = str_replace(chr(0xC2) . chr(0xA0), ' ', $field);
+		$field = preg_replace('/[\h\v]+/', ' ', $field);
+		$field = trim($field);
+		$field = ltrim($field, '+-');
+		$field = strip_tags($field);
+		$field = str_replace('"', '""', $field);
+		return $field;
     }</pre></code>
 
-<p>For your convenience, the <code>libraries/Site/drivers</code> folder includes a file called <code>Site_template.php</code>. If it suits your purposes, you can copy it and just fill in the code needed for the website you're working with.</p>
+<p>First, all HTML entities are converted from their <code>&code;</code> format to their character format, so <code>&#38amp;</code> becomes &, but more importantly, any <code>&#38nbsp;</code> are converted to their UTF equivalent, which in the next line are converted to ordinary spaces. Then all horizontal and vertical whitespace characters, one or more together, are converted to single ordinary spaces. Now the string is trimmed, and then any plus or minus symbols on the left are removed because Excel will misinterpret them. The next line removes tags like <code>&lt;b></code> and <code>&lt;i></code>, and finally, single double-quotes are escaped as double double-quotes.</p>
+
+<p>There's no point in running URLs extracted as href attributes because their value will be correct unless the link itself is broken, and there's nothing you or this application can do about links that are broken on other people's websites. It's really only the text content of nodes that needs to be cleaned.</p>
+
+<h2>Getting Text Content from Nodes</h2>
+
+<p>You might find this utility function in <code>Sites.php</code> useful. It takes the results of an XPath query that returns only one node, and returns the text that node contains, optionally passed through the <code>clean_field</code> method. If the XPath query doesn't return any results, the method returns an empty string.</p>
+
+<pre><code>    public function get_text_content($nodelist, $clean = true)
+    {
+        $field = '';
+        if ($nodelist->length)
+        {
+            $field = $nodelist->item(0)->textContent;
+            if ($clean)
+            {
+                $field = $this->clean_field($field);
+            }
+        }
+        return $field;
+    }</code></pre>
+
+<h2>End of Documentation</h2>

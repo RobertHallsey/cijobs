@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Site_template extends CI_Driver {
+class Sites_template extends CI_Driver {
 
 	public function get_next_page_url($xpath)
 	{
@@ -14,7 +14,7 @@ class Site_template extends CI_Driver {
 		return $xpath->query('put-your-query-here');
 	}
 	
-	public function get_fields($row)
+	public function get_fields(    )
 	{
 		$fields = array(
 			// 'field_1' => '',
@@ -22,13 +22,9 @@ class Site_template extends CI_Driver {
 			// 'field_3' => '',
 			// whatever fields you want
 		);
-		$dom = new DOMDocument;
-		$dom->appendChild($dom->importNode($row, true));
-		$xpath = new DOMXPath($dom);
 		// your code goes here
 		// get data from row and
 		// assign it to $fields array
-		$line = '"' . implode('","', $fields) . '"' . "\r\n";
-		return ($line);
+		return $fields;
 	}
 }

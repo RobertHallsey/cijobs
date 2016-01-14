@@ -13,7 +13,7 @@ CREATE TABLE searches (
 CREATE TABLE sites (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(32) NOT NULL,
-  class varchar(16) NOT NULL,
+  driver varchar(16) NOT NULL,
   PRIMARY KEY (id)
 );
 

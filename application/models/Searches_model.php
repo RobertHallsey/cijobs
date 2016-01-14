@@ -17,7 +17,7 @@ Class Searches_model extends CI_Model {
 	searches.url AS url,
 	sites.id AS site_id,
 	sites.name AS site_name,
-	sites.class AS site_class
+	sites.driver AS driver
 FROM searches
 INNER JOIN sites ON
 	searches.site_id = sites.id
@@ -33,7 +33,7 @@ INNER JOIN sites ON
 	searches.url AS url,
 	sites.id AS site_id,
 	sites.name AS site_name,
-	sites.class AS site_class
+	sites.driver AS driver
 FROM searches
 INNER JOIN sites ON
 	searches.site_id = sites.id
@@ -65,7 +65,7 @@ WHERE searches.id = ' . $search_id . '
 'SELECT
 	sites.id AS id,
 	sites.name AS name,
-	sites.class AS class
+	sites.driver AS driver
 FROM sites
 ;'
 		)->result_array();

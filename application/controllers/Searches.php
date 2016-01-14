@@ -2,7 +2,7 @@
 
 class Searches extends CI_Controller {
 
-protected $sites = array();
+protected $site_list = array();
 protected $searches = array();
 
 	public function __construct()
@@ -13,9 +13,9 @@ protected $searches = array();
 		$this->load->library('form_validation');
 		$this->load->library('table');
 		$this->load->model('searches_model');
-		$this->sites = $this->searches_model->get_sites();
+		$this->site_list = $this->searches_model->get_sites();
 		$this->searches = $this->searches_model->get_searches();
-		$this->load->driver('site', array_column($this->sites, 'class'));
+		$this->load->driver('sites', array_column($this->site_list, 'driver'));
 	}
 
 	public function index()
@@ -31,7 +31,7 @@ protected $searches = array();
 		}
 		$data = array(
 			'subview' => 'search_add_view',
-			'sites' => $this->sites,
+			'sites' => $this->site_list,
 			'searches' => $this->searches
 		);
 		$this->load->view('searches_view', $data);
@@ -51,7 +51,7 @@ protected $searches = array();
 		}
 		$data = array(
 			'subview' => 'search_edit_view',
-			'sites' => $this->sites,
+			'sites' => $this->site_list,
 			'searches' => $this->searches,
 			'search' => $search
 		);
@@ -70,7 +70,7 @@ protected $searches = array();
 		}
 		$data = array(
 			'subview' => 'search_delete_view',
-			'sites' => $this->sites,
+			'sites' => $this->site_list,
 			'searches' => $this->searches,
 			'search' => $search
 		);
@@ -84,12 +84,12 @@ protected $searches = array();
 		if ($this->form_validation->run())
 		{
 			$search['url'] = $this->input->post('search[url]', true);
-			$output = $this->site->scrape($search);
+			$output = $this->sites->scrape($search['url'], $search['driver']);
 			force_download($search['name'] . '.csv', $output);
 		}
 		$data = array(
 			'subview' => 'search_execute_view',
-			'sites' => $this->sites,
+			'sites' => $this->site_list,
 			'searches' => $this->searches,
 			'search' => $search
 		);
