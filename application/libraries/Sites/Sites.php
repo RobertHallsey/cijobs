@@ -1,5 +1,13 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
+/**
+ * @author Robert Hallsey <rhallsey@yahoo.com>
+ * @copyright 2016 Robert Hallsey
+ * @license GPL v 3.0
+ *
+ * This is the main or parent driver.
+ *
+ */
 class Sites extends CI_Driver_Library {
 
     public $valid_drivers = array();
@@ -9,6 +17,11 @@ class Sites extends CI_Driver_Library {
 		$this->valid_drivers = $drivers;
 	}
 
+	/**
+	 * @param string $url Starting search URL
+	 * @param string $driver Name of driver
+	 * @return string $output CSV-formatted results
+	 */
 	public function scrape($url, $driver)
 	{
 		$curl_options = array(
@@ -41,6 +54,10 @@ class Sites extends CI_Driver_Library {
 		return $output;
 	}
 
+	/**
+	 * @param string $field A string extracted from a web page
+	 * @return string A cleaned-up string
+	 */
 	public function clean_field ($field)
 	{
 		$field = html_entity_decode($field, ENT_QUOTES);
@@ -53,6 +70,10 @@ class Sites extends CI_Driver_Library {
 		return $field;
 	}
 		
+	/**
+	 * @param NodeList $nodelist A string extracted from a web page
+	 * @param boolean $clean Whether to clean field or not, defaults to true
+	 */
 	public function get_text_content($nodelist, $clean = true)
 	{
 		$field = '';

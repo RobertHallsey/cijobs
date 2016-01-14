@@ -1,5 +1,13 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
+/**
+ * @author Robert Hallsey <rhallsey@yahoo.com>
+ * @copyright 2016 Robert Hallsey
+ * @license GPL v 3.0
+ *
+ * This is the driver file for Craigslist
+ *
+ */
 class Sites_craigslist extends CI_Driver {
 
 const SITE = 'http://sfbay.craigslist.com';

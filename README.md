@@ -39,7 +39,7 @@ Note that the file Site_template.php is just that, a template to help you create
 
 Place the assets folder from the zip into the root of your CodeIgniter installation. It should be at the same level as the application folder. The folder contains a single file, `style.css`, which you can use to set the application's appearance.
 
-Create the database according to the createdb.sql file. It's a plain text file. Open and copy the contents into the SQL command interface of whatever SQL administrator you use.
+Create the database according to the createdb.sql file. It's a plain text file. Open and copy the contents into the SQL command interface of whatever SQL administrator you use. If you must change table names, make sure you also change `application/models/Searches_model.php` to reflect that.
 
 Edit the following files:
 
