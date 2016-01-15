@@ -154,7 +154,7 @@ CREATE TABLE sites (
 
 <p>First, all HTML entities are converted to their character format, so <code>&#38copy;</code> becomes <code>&copy;</code>, but more importantly, any non-breaking spaces are converted to their UTF equivalent, which in the next line are converted to ordinary spaces. Then all horizontal and vertical whitespace characters, one or more together, are converted to single ordinary spaces. Now the string is trimmed, and then any plus or minus symbols on the left are removed because Excel will misinterpret them. The next line removes tags like <code>&lt;b></code> and <code>&lt;i></code>, and finally, single double-quotes are escaped as double double-quotes.</p>
 
-<p>There's no point in running URLs extracted as href attributes because their value will be correct unless the link itself is broken, and there's nothing you or this application can do about links that are broken on other people's websites. It's really only the text content of nodes that needs to and can be cleaned.</p>
+<p>There's no point in running URLs extracted as href attributes through the <code>clean_field</code> method because their value will already be "clean" unless the link itself is broken, and there's nothing you or this application can do about links that are broken on other people's websites. It's really only text content that needs to be cleaned.</p>
 
 <h2>Getting Text Content from Nodes</h2>
 
@@ -175,3 +175,5 @@ CREATE TABLE sites (
     }</code></pre>
 
 <h2>End of Documentation</h2>
+
+<p>If you have any questions, corrections, or suggestions, let me know at <a href="mailto:rhallsey@yahoo.com">rhallsey@yahoo.com</a>.
