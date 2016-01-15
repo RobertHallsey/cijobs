@@ -92,7 +92,7 @@ protected $sites = array();
 		if ($this->form_validation->run())
 		{
 			$search['url'] = $this->input->post('search[url]', true);
-			$output = $this->sites->scrape($search['url'], $search['driver']);
+			$output = $this->scraper->scrape($search['url'], $search['driver']);
 			force_download($search['name'] . '.csv', $output);
 		}
 		$data = array(

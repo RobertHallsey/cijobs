@@ -12,15 +12,11 @@
 
 <p>You should know that even recent versions of Excel don't handle UTF-8 correctly when loading CSV files, displaying some multi-byte characters as multipe single-byte characters. Depending on your searches, this may not matter or it may matter very much. The workaround is to <i>import</i> the files instead of opening them. Even very old Excel versions have an import function under the Tools menu. When you import a file, you are able to select the encoding, something you can't do when you merely open it.</p>
 
-<p>This is a real application. I use it myself. However, despite being very simple, it uses some more advanced PHP and CodeIgniter features, so it can serve as a nice step up from the beginning tutorials. For this reason, the rest of the documentation delves into the application itself. I hope you find it useful.</p>
+<p>This is a real application. I use it myself. However, despite being very simple, it uses some advanced PHP and CodeIgniter features, so it can serve as a nice step up from the beginning tutorials. For this reason, the rest of the documentation delves into the application itself. I hope you find it useful.</p>
 
 <h2>The Application's Database</h2>
 
-<p>The database stores searches. A stored search consists of row id, name, starting search URL, and the id of the site being searched. The application needs to know which site is being searched so it can determine which driver to use, and it could have gotten this information from the search URL, but it doesn't. The good reason for this is that you can then use the same driver for different websites, or at least for different URLs. Some companies have websites under different TLDs, and some companies use subdomains for various purposes, appearing to be different websites though they are really just one.</p>
-
-<p>For example, suppose global retailer Example, Inc., has a website at <code>http://www.example.com</code>. Then it enters the Japanese market, and sells to that market through <code>http://www.example.jp</code>. If the application went by the URL to select the appropriate driver, you'd need to maintain two copies of the same driver, one for the dot com and the other for the dot jp. Not using the URL to select the driver allows you to use the same driver in both cases.</p>
-
-<p>The database also stores sites. A stored site consists of row id, site name, and driver name. The driver name is the name of the driver class file without the file extension and without the driver name <code>Sites_</code>, so if you added a driver class file called <code>Sites_example.php</code>, the driver name in the database would be just <code>example</code>.</p>
+<p>The database stores searches in a table called <code>searches</code>. A stored search consists of row id, name, starting search URL, and a foreign key pointing to a row in the <code>sites</code> table. Rows in the <code>sites</code> table consist of row id, site name, and driver name. A joined result consists of search id, search name, search URL, site id, site name, and site driver. The search row is joined to its site row so that the application can determine which driver to use in the search.</p>
 
 <p>Here is the SQL code in the file createdb.sql.</p>
 
