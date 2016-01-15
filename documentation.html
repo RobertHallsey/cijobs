@@ -58,35 +58,35 @@ CREATE TABLE sites (
 
 <pre><code>    class Site_template extends CI_Driver {
 
-        public function get_next_page_url($xpath)
-        {
-            $url = '';
-            // xpath query and other code to find url to next page
-            return $url;
-        }
+    public function get_next_page_url($xpath)
+    {
+        $url = '';
+        // xpath query and other code to find url to next page
+        return $url;
+    }
 
-        public function get_rows($xpath)
-        {
-            return $xpath->query('put-your-query-here');
-        }
-        
-        public function get_fields($row)
-        {
-            $fields = array(
-                // 'field_1' => '',
-                // 'field_2' => '',
-                // 'field_3' => '',
-                // whatever fields you want
-            );
-            $dom = new DOMDocument;
-            $dom->appendChild($dom->importNode($row, true));
-            $xpath = new DOMXPath($dom);
-            // your code goes here
-            // get data from row and
-            // assign it to $fields array
-            $line = '"' . implode('","', $fields) . '"' . "\r\n";
-            return ($line);
-        }
+    public function get_rows($xpath)
+    {
+        return $xpath->query('put-your-query-here');
+    }
+    
+    public function get_fields($row)
+    {
+        $fields = array(
+        // 'field_1' => '',
+        // 'field_2' => '',
+        // 'field_3' => '',
+        // whatever fields you want
+        );
+        $dom = new DOMDocument;
+        $dom->appendChild($dom->importNode($row, true));
+        $xpath = new DOMXPath($dom);
+        // your code goes here
+        // get data from row and
+        // assign it to $fields array
+        $line = '"' . implode('","', $fields) . '"' . "\r\n";
+        return ($line);
+    }
     }</pre></code>
     
 <h2>Controller</h2>
@@ -95,39 +95,50 @@ CREATE TABLE sites (
 
 <pre><code>    public function index()
     {
-        $this->form_validation->set_rules('search[name]', 'Search Name', 'required');
-        $this->form_validation->set_rules('search[site_id]', 'Site', 'required');
-        $this->form_validation->set_rules('search[url]', 'Search URL', 'required');
-        if ($this->form_validation->run())
-        {
-            $data = $this->input->post('search', TRUE);
-            $search_id = $this->searches_model->add_search($data);
-            redirect();
-        }
-        $data = array(
-            'subview' => 'search_add_view',
-            'sites' => $this->site_list,
-            'searches' => $this->searches
-        );
-        $this->load->view('searches_view', $data);
+    $this->form_validation->set_rules('search[name]', 'Search Name', 'required');
+    $this->form_validation->set_rules('search[site_id]', 'Site', 'required');
+    $this->form_validation->set_rules('search[url]', 'Search URL', 'required');
+    if ($this->form_validation->run())
+    {
+        $data = $this->input->post('search', TRUE);
+        $search_id = $this->searches_model->add_search($data);
+        redirect();
+    }
+    $data = array(
+        'subview' => 'search_add_view',
+        'sites' => $this->site_list,
+        'searches' => $this->searches
+    );
+    $this->load->view('searches_view', $data);
     }</code></pre>
     
 <p>The above code performed an insert. In the case of an update, it's not much more complicated. The edit method would usually be invoked by the user clicking on a link that you had previously provided and which included the id of the row to update. The URL might be <code>http://www.example.com/shop/products/edit/3</code>, so 3 would automatically be passed to the edit method. The edit method takes that id and uses it to retrieve the rest of the row. The view will then populate the form with the row's data.</p>
 
 <pre><code>    public function edit($search_id)
     {
-        $search = $this->searches_model->get_search($search_id);
-        $this->form_validation->set_rules('search[name]', 'Search Name', 'required');
-        $this->form_validation->set_rules('search[site_id]', 'Site', 'required');
-        $this->form_validation->set_rules('search[url]', 'Search URL', 'required');
-        if ($this->form_validation->run())
-        {
-            ...</code></pre>
+    $search = $this->searches_model->get_search($search_id);
+    $this->form_validation->set_rules('search[name]', 'Search Name', 'required');
+    $this->form_validation->set_rules('search[site_id]', 'Site', 'required');
+    $this->form_validation->set_rules('search[url]', 'Search URL', 'required');
+    if ($this->form_validation->run())
+    {
+        ...</code></pre>
 
 <h2>The View System</h2>
 
-<p>The CodeIgniter view system is very flexible. When you load a view from a controller, you can pass an associative array that will be turned into variable names and assigned values in the view itself. But CodeIgniter is smart enough to let you load views from views as well. In the case of this application, it has one main view, <code>searches_view.php</code>. Review that file and notice that it begins by loading a view called <code>header</code> and ends by loading a view called <code>footer</code>. This ensures consistency on every page. <code>searches_view.php</code> also loads <code>$subview</code>, passed to it in the <code>$data</code> array by the controller. The contents of <code>$subview</code> determine whether to show a form that adds a new search, edits an existing one, or deletes one.</p>
+<p>When you load a view from a controller, you can pass an associative array that will be turned into variable names and assigned values in the view itself. Consider this piece of code.</p>
+<pre><code>    $data = array(
+        'subview' => 'search_add_view',
+        'sites' => $this->site_list,
+        'searches' => $this->searches
+    );
+    $this->load->view('searches_view', $data);</code></pre>
 
+<p>This passes <code>$data</code> to <code>searches_view.php</code>. In that file, however, CodeIgniter breaks <code>$data</code> down so that you access its elements as if they were variables. The key-value pair <code>'subview' => 'search_add_view'</code>, for example, becomes the variable <code>$subview</code> with the value <code>'search_add_view'</code>.</p>
+
+<p>You can also chain views. That is, the view that you load (as in the code above) can then load views or subviews of its own. The above code sets that up, assigning the string <code>search_add_view</code> to what will be the variable <code>$subview</code>. In <code>searches_view</code>, all the view needs to do is load the subview, like this: <code>
+<?php $this->load->view($subview); ?></code>. This lets you chain different views using the same code, since which views to use is stored in a variable and not hard-coded. In the example here, the display consists of the table of saved searches <i>plus</i> a form that varies according to the selected function -- add, edit, delete, execute. Being able to chain views lets us create highly consistent screens with little duplicated code.</p>
+		
 <h2>Using the Driver Library</h2>
 
 </p>In the controller's constructor, the line <code>$this->load->driver('sites', array_column($this->site_list, 'driver'));</code> loads the driver library and makes its methods available. In the controller's execute method, the line <code>$output = $this->sites->scrape($search);</code> passes the driver name to the <code>scrape</code> method, which tells the <code>scrape</code> method which of the drivers to use.</p>
@@ -138,14 +149,14 @@ CREATE TABLE sites (
 
 <code><pre>    public function clean_field ($field)
     {
-        $field = html_entity_decode($field, ENT_QUOTES);
-        $field = str_replace(chr(0xC2) . chr(0xA0), ' ', $field);
-        $field = preg_replace('/[\h\v]+/', ' ', $field);
-        $field = trim($field);
-        $field = ltrim($field, '+-');
-        $field = strip_tags($field);
-        $field = str_replace('"', '""', $field);
-        return $field;
+    $field = html_entity_decode($field, ENT_QUOTES);
+    $field = str_replace(chr(0xC2) . chr(0xA0), ' ', $field);
+    $field = preg_replace('/[\h\v]+/', ' ', $field);
+    $field = trim($field);
+    $field = ltrim($field, '+-');
+    $field = strip_tags($field);
+    $field = str_replace('"', '""', $field);
+    return $field;
     }</pre></code>
 
 <p>First, all HTML entities are converted to their character format, so <code>&#38copy;</code> becomes <code>&copy;</code>, but more importantly, any non-breaking spaces are converted to their UTF equivalent, which in the next line are converted to ordinary spaces. Then all horizontal and vertical whitespace characters, one or more together, are converted to single ordinary spaces. Now the string is trimmed, and then any plus or minus symbols on the left are removed because Excel will misinterpret them. The next line removes tags like <code>&lt;b></code> and <code>&lt;i></code>, and finally, single double-quotes are escaped as double double-quotes.</p>
@@ -158,16 +169,16 @@ CREATE TABLE sites (
 
 <pre><code>    public function get_text_content($nodelist, $clean = true)
     {
-        $field = '';
-        if ($nodelist->length)
+    $field = '';
+    if ($nodelist->length)
+    {
+        $field = $nodelist->item(0)->textContent;
+        if ($clean)
         {
-            $field = $nodelist->item(0)->textContent;
-            if ($clean)
-            {
-                $field = $this->clean_field($field);
-            }
+        $field = $this->clean_field($field);
         }
-        return $field;
+    }
+    return $field;
     }</code></pre>
 
 <h2>End of Documentation</h2>
