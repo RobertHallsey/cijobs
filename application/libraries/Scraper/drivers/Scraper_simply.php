@@ -8,7 +8,7 @@
  * This is the driver file for Simply Hired
  *
  */
-class Sites_simply extends CI_Driver {
+class Scraper_simply extends CI_Driver {
 
 const SITE = 'http://www.simplyhired.com';
 const SITE_CODE = 'SH';

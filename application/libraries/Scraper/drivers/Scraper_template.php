@@ -8,7 +8,7 @@
  * This is the driver file for Your Site
  *
  */
-class Sites_template extends CI_Driver {
+class Scraper_template extends CI_Driver {
 
 	public function get_next_page_url($xpath)
 	{

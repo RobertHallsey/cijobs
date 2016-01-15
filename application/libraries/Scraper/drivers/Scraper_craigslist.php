@@ -1,6 +1,14 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Site_craigslist extends CI_Driver {
+/**
+ * @author Robert Hallsey <rhallsey@yahoo.com>
+ * @copyright 2016 Robert Hallsey
+ * @license GPL v 3.0
+ *
+ * This is the driver file for Craigslist
+ *
+ */
+class Scraper_craigslist extends CI_Driver {
 
 const SITE = 'http://sfbay.craigslist.com';
 const SITE_CODE = 'CL';
@@ -20,7 +28,7 @@ const SITE_CODE = 'CL';
 		return $xpath->query('//p[@class="row"]');
 	}
 	
-	public function get_fields($row)
+	public function get_fields($xpath)
 	{
 		$fields = array(
 			'title' => '',
@@ -32,11 +40,7 @@ const SITE_CODE = 'CL';
 			'date' => '',
 			'code' => ''
 		);
-		$dom = new DOMDocument;
-		$dom->appendChild($dom->importNode($row, true));
-		$xpath = new DOMXPath($dom);
-		$field = $xpath->query('//a[@class="hdrlnk"]');
-		$fields['title'] = (($field->length) ? $this->clean_field($field->item(0)->textContent) : '');
+		$fields['title'] = $this->get_text_content($xpath->query('//a[@class="hdrlnk"]'));
 		$field = $xpath->query('//a[@class="hdrlnk"]')->item(0)->getAttribute('href');
 		if ($field[0] == '/') $field = self::SITE . $field;
 		$fields['url'] = $field;
@@ -45,7 +49,6 @@ const SITE_CODE = 'CL';
 		$xpath->query('//time')->item(0)->getAttribute('datetime');
 		$fields['date'] = date('Ymd');
 		$fields['code'] = self::SITE_CODE;
-		$line = '"' . implode('","', $fields) . '"' . "\r\n";
-		return ($line);
+		return $fields;
 	}
 }

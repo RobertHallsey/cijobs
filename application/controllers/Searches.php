@@ -11,7 +11,7 @@
 class Searches extends CI_Controller {
 
 protected $searches = array();
-protected $site_list = array();
+protected $sites = array();
 
 	public function __construct()
 	{
@@ -22,8 +22,8 @@ protected $site_list = array();
 		$this->load->library('table');
 		$this->load->model('searches_model');
 		$this->searches = $this->searches_model->get_searches();
-		$this->site_list = $this->searches_model->get_sites();
-		$this->load->driver('sites', array_column($this->site_list, 'driver'));
+		$this->sites = $this->searches_model->get_sites();
+		$this->load->driver('scraper', array_column($this->sites, 'driver'));
 	}
 
 	public function index()
@@ -39,7 +39,7 @@ protected $site_list = array();
 		}
 		$data = array(
 			'subview' => 'search_add_view',
-			'sites' => $this->site_list,
+			'sites' => $this->sites,
 			'searches' => $this->searches
 		);
 		$this->load->view('searches_view', $data);
@@ -59,7 +59,7 @@ protected $site_list = array();
 		}
 		$data = array(
 			'subview' => 'search_edit_view',
-			'sites' => $this->site_list,
+			'sites' => $this->sites,
 			'searches' => $this->searches,
 			'search' => $search
 		);
@@ -78,7 +78,7 @@ protected $site_list = array();
 		}
 		$data = array(
 			'subview' => 'search_delete_view',
-			'sites' => $this->site_list,
+			'sites' => $this->sites,
 			'searches' => $this->searches,
 			'search' => $search
 		);
@@ -97,7 +97,7 @@ protected $site_list = array();
 		}
 		$data = array(
 			'subview' => 'search_execute_view',
-			'sites' => $this->site_list,
+			'sites' => $this->sites,
 			'searches' => $this->searches,
 			'search' => $search
 		);

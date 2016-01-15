@@ -8,7 +8,7 @@
  * This is the main or parent driver.
  *
  */
-class Sites extends CI_Driver_Library {
+class Scraper extends CI_Driver_Library {
 
     public $valid_drivers = array();
 	
@@ -71,8 +71,8 @@ class Sites extends CI_Driver_Library {
 	}
 		
 	/**
-	 * @param NodeList $nodelist A string extracted from a web page
-	 * @param boolean $clean Whether to clean field or not, defaults to true
+	 * @param NodeList $nodelist An XPath query reesult
+	 * @param boolean $clean Clean field or not, defaults to true
 	 */
 	public function get_text_content($nodelist, $clean = true)
 	{
