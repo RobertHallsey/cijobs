@@ -10,8 +10,8 @@
  */
 class Searches extends CI_Controller {
 
-protected $site_list = array();
 protected $searches = array();
+protected $site_list = array();
 
 	public function __construct()
 	{
@@ -21,8 +21,8 @@ protected $searches = array();
 		$this->load->library('form_validation');
 		$this->load->library('table');
 		$this->load->model('searches_model');
-		$this->site_list = $this->searches_model->get_sites();
 		$this->searches = $this->searches_model->get_searches();
+		$this->site_list = $this->searches_model->get_sites();
 		$this->load->driver('sites', array_column($this->site_list, 'driver'));
 	}
 
@@ -105,4 +105,3 @@ protected $searches = array();
 	}
 
 }
-

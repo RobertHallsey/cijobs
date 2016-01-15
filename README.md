@@ -15,11 +15,11 @@ In the zip are two folders, `application` and `assets`, and one file, `createdb.
 The application folder consists of these files:
 
 * application/controllers/Searches.php
-* application/libraries/Site/Site.php
-* application/libraries/Site/drivers/Site_craigslist.php
-* application/libraries/Site/drivers/Site_indeed.php
-* application/libraries/Site/drivers/Site_simply.php
-* application/libraries/Site/drivers/Site_template.php
+* application/libraries/Sites/Site.php
+* application/libraries/Sites/drivers/Sites_craigslist.php
+* application/libraries/Sites/drivers/Sites_indeed.php
+* application/libraries/Sites/drivers/Sites_simply.php
+* application/libraries/Sites/drivers/Sites_template.php
 * application/models/Searches_model.php
 * application/views/header.php
 * application/views/footer.php
@@ -31,15 +31,13 @@ The application folder consists of these files:
 
 ## Installation
 
-Experienced users can set up single CodeIgniter installations to run multiple applications, but otherwise, start with a fresh CodeIgniter installation that successfully shows the welcome page.
+Start with a fresh CodeIgniter installation that successfully shows the welcome page.
 
 Place the application files from the zip into their corresponding folders in your CodeIgniter installation.
 
-Note that the file Site_template.php is just that, a template to help you create your own drivers. More about this in the documentation file.
-
 Place the assets folder from the zip into the root of your CodeIgniter installation. It should be at the same level as the application folder. The folder contains a single file, `style.css`, which you can use to set the application's appearance.
 
-Create the database according to the createdb.sql file. It's a plain text file. Open and copy the contents into the SQL command interface of whatever SQL administrator you use. If you must change table names, make sure you also change `application/models/Searches_model.php` to reflect that.
+Create the database according to the `createdb.sql` file. It's a plain text file. Open and copy the contents into the SQL command interface of whatever SQL administrator you use. If you must change table names, make sure you also change `application/models/Searches_model.php` to reflect that.
 
 Edit the following files:
 

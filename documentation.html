@@ -2,11 +2,11 @@
 
 <h2>User Documentation</h2>
 
-<p>Please see the README.MD file for installation instructions.</p>
+<p>Please see the <code>README.MD</code> file for installation instructions.</p>
 
-<p>Having installed the application in CodeIgniter, you are ready to use it. Run the application in one browser tab, and in another tab, open Craigslist, Indeed, or Simply Hired. Once there, run a search for the jobs your want, setting options as you wish. The website will respond with the first page of your search results. Look at the address bar. That is the URL you will use for this search. Copy it to the clipboard and move to the tab where you're running Search Scraper.</p>
+<p>Having installed the application in CodeIgniter, you are ready to use it. It comes preconfigured to search three job boards, but keep in mind that, with the right driver files, it can automate any web search. Run the application in one browser tab, and in another tab, open Craigslist, Indeed, or Simply Hired. Once there, run a search for the jobs your want. The website will respond with the first page of your search results. Now look at your browser's address bar. That is the URL you will use for this search. Copy it to the clipboard and move to the tab where you're running Search Scraper.</p>
 
-<p>Fill out the form under Add a New Search. Give the search you're about to save a meaningful name, and select which site it's from. Then paste the URL you copied to the clipboard into the Search URL field. Now click Ok to save the search and watch it appear in the list of saved searches. You edit or delete the saved by clicking the links to the right.</p>
+<p>Fill out the <code>Add a New Search</code> form. Give the search you're about to save a meaningful name, and select which site it's from. Then paste the URL you copied to the clipboard into the Search URL field. Now click Ok to save the search and watch it appear in the list of saved searches. You edit or delete the saved by clicking the links to the right.</p>
 
 <p>You can also execute the search. When you do so, the application will show the search and allow you to edit the URL. This is in case you have a standard search that you would like to run slightly differently just this once. After you click Ok, a CSV file with the name of your search will download. This should not take more than a few seconds, no longer than it would take to download the individual web pages in the search. The web pages are not particularly large, so with high-speed internet, even ten seconds is enough to download hundreds of rows. Again, please don't run the application carelessly or abusively, though I imagine many websites have measures to prevent abusive downloading.</p>
 
@@ -16,9 +16,11 @@
 
 <h2>The Application's Database</h2>
 
-<p>The database stores searches. A stored search consists of row id, name, a starting search URL, and the id of the site being searched. The needs to know which site is being searched so it can determine which driver to use, and it could have gotten this information from the search URL, but it doesn't. The good reason for this is that you can then use the same driver for different websites, or at least for different URLs. Some companies have websites under different TLDs, and some companies use subdomains for various purposes, appearing to be different websites though they are really just one. 
+<p>The database stores searches. A stored search consists of row id, name, starting search URL, and the id of the site being searched. The application needs to know which site is being searched so it can determine which driver to use, and it could have gotten this information from the search URL, but it doesn't. The good reason for this is that you can then use the same driver for different websites, or at least for different URLs. Some companies have websites under different TLDs, and some companies use subdomains for various purposes, appearing to be different websites though they are really just one.</p>
 
-<p>The database also stores sites. A stored site consists of row id, site name, and driver name. The driver name is the name of the driver class file without the file extension and without the driver name "Sites," so if you added a driver class file called <code>Sites_mysearch.php</code>, the driver name in the database would be just <code>mysearch</code>.</p>
+<p>For example, suppose global retailer Example, Inc., has a website at <code>http://www.example.com</code>. Then it enters the Japanese market, and sells to that market through <code>http://www.example.jp</code>. If the application went by the URL to select the appropriate driver, you'd need to maintain two copies of the same driver, one for the dot com and the other for the dot jp. Not using the URL to select the driver allows you to use the same driver in both cases.</p>
+
+<p>The database also stores sites. A stored site consists of row id, site name, and driver name. The driver name is the name of the driver class file without the file extension and without the driver name <code>Sites_</code>, so if you added a driver class file called <code>Sites_example.php</code>, the driver name in the database would be just <code>example</code>.</p>
 
 <p>Here is the SQL code in the file createdb.sql.</p>
 
@@ -40,17 +42,15 @@ CREATE TABLE sites (
 
 <h2>Driver Libraries</h2>
 
-<p>The application uses CodeIgniter's Driver Libraries feature. A driver library consists of a parent class and one or more child classes. The parent and child classes are contained in a single folder for that driver library, so moving and packaging them is very easy. The parent and child classes can invoke methods in each other but not between child classes. This lets you put all the methods common to all child classes in the parent class, leaving only the methods particular to each child class in the child classes. The CodeIgniter manual doesn't document this feature correctly, so until it does, <a href="http://forum.codeigniter.com/thread-63839-post-326830.html#pid326830" target="_blank">please see this forum post</a>.</p>
-
-<p>In any case, the application has a driver library folder called <code>Sites</code>, within which is the class <code>Sites.php</code> and a <code>drivers</code> folder with various driver class files. One of these driver class files is <code>Sites_template.php</code>, provided for your convenience should you write your own drivers.</p>
+<p>The application uses CodeIgniter's Driver Libraries feature. A driver library consists of a parent class and one or more child classes. The parent and child classes are contained in a single folder for that driver library, so moving driver libraries is very easy. The parent and child classes can invoke methods in each other but child classes cannot access other child classes. This lets you put the methods common to all child classes in the parent class, leaving only the methods particular to each child class in the child classes. The CodeIgniter manual doesn't document this feature correctly, so until it does, <a href="http://forum.codeigniter.com/thread-63839-post-326830.html#pid326830" target="_blank">please see this forum post</a>. In any case, the application has a driver library folder called <code>Sites</code>, within which is the class <code>Sites.php</code> and a <code>drivers</code> folder with various driver class files. One of these driver class files is <code>Sites_template.php</code>, provided for your convenience should you write your own drivers.</p>
 
 <p>Before writing your own drivers, you should be basically familiar with DOM and XPath. DOM (Document Object Model) is an ordered and organized representation of the messy HTML on a web page, and XPath is a fast and efficient way of searching and extracting data from the DOM. For these purposes, you really only need to learn the XPath query syntax.</p>
 
 <h2>How the Application Works</h2>
 
-<p>Here is the process from when a search is executed and the Ok button is clicked. See the <code>execute</code> method in the <code>Searches</code> controller. After the Ok button is clicked, the form validates unless the URL field was cleared. The controller, having loaded the drivers in its constructor, invokes the <code>scrape</code> method, passing it the URL and the driver. The <code>scrape</code> method should return the scraped rows in CSV format in all one long string. If the method finds nothing to scrape, it returns an empty string.</p>
+<p>Here is the process from when a search is executed and the Ok button is clicked. See the <code>execute</code> method in the <code>Searches</code> controller. After the Ok button is clicked, the form validates unless the URL field was cleared. The controller, having loaded the drivers in its constructor, invokes the <code>scrape</code> method, passing it the URL and the driver. The <code>scrape</code> method should return the scraped rows in CSV format all in one long string. If the method finds nothing to scrape, it returns an empty string.</p>
 
-<p>Now let's pick up in the <code>scrape</code>method. The method receives the arguments as <code>$url</code> and <code>$driver</code>, sets some cURL options, and then enters into a loop as long as <code>$url</code> evaluates true. The method then creates a cURL object, from which it creates a DOM object, from which it creates an XPath object. It then makes the first call to the actual driver, to the method <code>get_next_page_url</code>, passing it the XPath object for the page. In the driver, the method <code>get_next_page_url</code> then queries the XPath object to find the link to the next page. When it doesn't find that link because it already on the last page, <code>$url</code> is cleared and the loop terminates, returning control to the controller.</p>
+<p>Now let's pick up in the <code>scrape</code> method. The method receives the arguments as <code>$url</code> and <code>$driver</code>, sets some cURL options, and then enters into a loop as long as <code>$url</code> evaluates true. Within that loop, the method creates a cURL object from which it creates a DOM object, from which it creates an XPath object. It then makes the first call to the actual driver, to the method <code>get_next_page_url</code>, passing it the XPath object for the page. In the driver, the method <code>get_next_page_url</code> then queries the XPath object to find the link to the next page. When it doesn't find that link because it's already on the last page, <code>$url</code> is cleared and the loop terminates, returning control to the controller.</p>
 
 <p>Having found the URL to the next page, the <code>scrape</code> method now finds the rows it seeks by calling the <code>get_rows</code> method. Again, in the driver, this method should query the XPath object passed to it and return the results. In <code>scrape</code>, the call to this method is embedded in a <code>foreach</code> loop that peels off a <code>$row</code> at a time. All successful XPath queries return an objecto of type NodeList, even when the list contains only one object of type Node. This means that <code>$row</code>, not being an object of type XPath, cannot be queried. Therefore, to use XPath to get the fields you want from the row, the row must be made into an XPath object. The method does this by creating a new DOM object, appending the row to it, and then creating an XPath object from the DOM object, which now contains the row. This is done to make things consistent for the child driver files. This way, every method in the driver works from an XPath object passed to it as an argument.</p>
 
@@ -58,9 +58,7 @@ CREATE TABLE sites (
 
 <h2>Writing Your Own Drivers</h2>
 
-<p>Here is the driver template code with the three required methods declared. In <code>get_next_page_url</code>, <code>$xpath</code> contains an XPath object for the entire page. Your query needs to find the URL to the next page. Typically, last pages have no link to a next page, so the method needs to return an empty string in that case. In <code>get_rows</code>, <code>$xpath</code> again contains an XPath object for the entire page. This time your query needs to return just the rows in the search results. Keep in mind, XPath queries always return objects of type DOMNodeList, even when only one node is found.</p>
-
-<p>Finally, in <code>get_fields</code>, you get the data you want from each row. This row is passed to the method not as an XPath object but as a DOMNode object. That's why the method must first create a DOMDocument object, add the DOMNode passed to it, and only then create an XPath object from it. Now we're back to querying <code>$xpath</code>, but this time the object contains only one row and not the entire page. This greatly simplifies getting the data you want from it.</p>
+<p>Here is the driver template code with the three required methods declared. In <code>get_next_page_url</code>, <code>$xpath</code> contains an XPath object for the entire page. Your query needs to find the URL to the next page. Typically, last pages have no link to a next page, so the method needs to return an empty string in that case. In <code>get_rows</code>, <code>$xpath</code> again contains an XPath object for the entire page. This time your query needs to return just the rows in the search results. Keep in mind, XPath queries always return objects of type DOMNodeList, even when only one node is found. Finally, in <code>get_fields</code>, you get the data you want from each row. This row is passed to the method not as an XPath object but as a DOMNode object. That's why the method must first create a DOMDocument object, add the DOMNode passed to it, and only then create an XPath object from it. Now we're back to querying <code>$xpath</code>, but this time the object contains only one row and not the entire page. This greatly simplifies getting the data you want from it.</p>
 
 <pre><code>    class Site_template extends CI_Driver {
 
@@ -94,10 +92,10 @@ CREATE TABLE sites (
             return ($line);
         }
     }</pre></code>
-	
+    
 <h2>Controller</h2>
 
-<p>The application has only one controller, <code>Searches.php</code>. This is a common code layout (I don't want to say pattern) for controller methods that process forms. You start by setting validation rules and then checking if the form validated. If the user submitted the form and it validates, the data is then processed, whether this be an insert, update, or deletion, and finally, a redirect sends control to another controller or back to itself. If validation fails, either because of error or because the form has not yet been displayed, control passes through to build an array with data for the view, and then to load the view.</p>
+<p>The application has only one controller, <code>Searches.php</code>. This is a common CodeIgniter code layout (I don't want to say pattern) for controller methods that process forms. You start by setting validation rules and then checking if the form validated. If the user submitted the form and it validates, the data is then processed, whether this be an insert, update, or deletion, after which a redirect sends control to another controller or back to itself. If validation fails, either because of error or because the form has not yet been displayed, control passes through to build an array with data for the view, and then to load the view.</p>
 
 <pre><code>    public function index()
     {
@@ -117,21 +115,26 @@ CREATE TABLE sites (
         );
         $this->load->view('searches_view', $data);
     }</code></pre>
-	
+    
 <p>The above code performed an insert. In the case of an update, it's not much more complicated. The edit method would usually be invoked by the user clicking on a link that you had previously provided and which included the id of the row to update. The URL might be <code>http://www.example.com/shop/products/edit/3</code>, so 3 would automatically be passed to the edit method. The edit method takes that id and uses it to retrieve the rest of the row. The view will then populate the form with the row's data.</p>
 
-<pre><code>	public function edit($search_id)
-	{
-		$search = $this->searches_model->get_search($search_id);
-		$this->form_validation->set_rules('search[name]', 'Search Name', 'required');
-		$this->form_validation->set_rules('search[site_id]', 'Site', 'required');
-		$this->form_validation->set_rules('search[url]', 'Search URL', 'required');
-		if ($this->form_validation->run())
-		{</code></pre>
-		
+<pre><code>    public function edit($search_id)
+    {
+        $search = $this->searches_model->get_search($search_id);
+        $this->form_validation->set_rules('search[name]', 'Search Name', 'required');
+        $this->form_validation->set_rules('search[site_id]', 'Site', 'required');
+        $this->form_validation->set_rules('search[url]', 'Search URL', 'required');
+        if ($this->form_validation->run())
+        {
+            ...</code></pre>
+
+<h2>The View System</h2>
+
+<p>The CodeIgniter view system is very flexible. When you load a view from a controller, you can pass an associative array that will be turned into variable names and assigned values in the view itself. But CodeIgniter is smart enough to let you load views from views as well. In the case of this application, it has one main view, <code>searches_view.php</code>. Review that file and notice that it begins by loading a view called <code>header</code> and ends by loading a view called <code>footer</code>. This ensures consistency on every page. <code>searches_view.php</code> also loads <code>$subview</code>, passed to it in the <code>$data</code> array by the controller. The contents of <code>$subview</code> determine whether to show a form that adds a new search, edits an existing one, or deletes one.</p>
+
 <h2>Using the Driver Library</h2>
 
-</p>In the controller's constructor, the line <code>$this->load->driver('sites', array_column($this->site_list, 'driver'));</code> loads the driver library and makes its methods available. In the controller's execute method, the line <code>$output = $this->sites->scrape($search);</code> passes the driver name to the <code>scrape()</code> method, which tells the <code>scrape()</code> method which of the drivers to use.</p>
+</p>In the controller's constructor, the line <code>$this->load->driver('sites', array_column($this->site_list, 'driver'));</code> loads the driver library and makes its methods available. In the controller's execute method, the line <code>$output = $this->sites->scrape($search);</code> passes the driver name to the <code>scrape</code> method, which tells the <code>scrape</code> method which of the drivers to use.</p>
 
 <h2>Cleaning Field Data for CSV</h2>
 
@@ -139,23 +142,23 @@ CREATE TABLE sites (
 
 <code><pre>    public function clean_field ($field)
     {
-		$field = html_entity_decode($field, ENT_QUOTES);
-		$field = str_replace(chr(0xC2) . chr(0xA0), ' ', $field);
-		$field = preg_replace('/[\h\v]+/', ' ', $field);
-		$field = trim($field);
-		$field = ltrim($field, '+-');
-		$field = strip_tags($field);
-		$field = str_replace('"', '""', $field);
-		return $field;
+        $field = html_entity_decode($field, ENT_QUOTES);
+        $field = str_replace(chr(0xC2) . chr(0xA0), ' ', $field);
+        $field = preg_replace('/[\h\v]+/', ' ', $field);
+        $field = trim($field);
+        $field = ltrim($field, '+-');
+        $field = strip_tags($field);
+        $field = str_replace('"', '""', $field);
+        return $field;
     }</pre></code>
 
-<p>First, all HTML entities are converted from their <code>&code;</code> format to their character format, so <code>&#38amp;</code> becomes &, but more importantly, any <code>&#38nbsp;</code> are converted to their UTF equivalent, which in the next line are converted to ordinary spaces. Then all horizontal and vertical whitespace characters, one or more together, are converted to single ordinary spaces. Now the string is trimmed, and then any plus or minus symbols on the left are removed because Excel will misinterpret them. The next line removes tags like <code>&lt;b></code> and <code>&lt;i></code>, and finally, single double-quotes are escaped as double double-quotes.</p>
+<p>First, all HTML entities are converted to their character format, so <code>&#38copy;</code> becomes <code>&copy;</code>, but more importantly, any non-breaking spaces are converted to their UTF equivalent, which in the next line are converted to ordinary spaces. Then all horizontal and vertical whitespace characters, one or more together, are converted to single ordinary spaces. Now the string is trimmed, and then any plus or minus symbols on the left are removed because Excel will misinterpret them. The next line removes tags like <code>&lt;b></code> and <code>&lt;i></code>, and finally, single double-quotes are escaped as double double-quotes.</p>
 
-<p>There's no point in running URLs extracted as href attributes because their value will be correct unless the link itself is broken, and there's nothing you or this application can do about links that are broken on other people's websites. It's really only the text content of nodes that needs to be cleaned.</p>
+<p>There's no point in running URLs extracted as href attributes because their value will be correct unless the link itself is broken, and there's nothing you or this application can do about links that are broken on other people's websites. It's really only the text content of nodes that needs to and can be cleaned.</p>
 
 <h2>Getting Text Content from Nodes</h2>
 
-<p>You might find this utility function in <code>Sites.php</code> useful. It takes the results of an XPath query that returns only one node, and returns the text that node contains, optionally passed through the <code>clean_field</code> method. If the XPath query doesn't return any results, the method returns an empty string.</p>
+<p>You might find this utility function in <code>Sites.php</code> useful. It takes the results of an XPath query that returns only one node, and returns the node's text, optionally passed through the <code>clean_field</code> method. If the XPath query doesn't return any results, the method returns an empty string.</p>
 
 <pre><code>    public function get_text_content($nodelist, $clean = true)
     {
