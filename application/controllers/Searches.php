@@ -26,6 +26,12 @@ protected $sites = array();
 		$this->load->driver('scraper', array_column($this->sites, 'driver'));
 	}
 
+/**
+ * The index method is also the add method
+ *
+ * @param none
+ * @return none
+ */
 	public function index()
 	{
 		$this->form_validation->set_rules('search[name]', 'Search Name', 'required');
@@ -45,6 +51,12 @@ protected $sites = array();
 		$this->load->view('searches_view', $data);
 	}
 
+/**
+ * Edit a search
+ *
+ * @param integer search id to edit
+ * @return none
+ */
 	public function edit($search_id)
 	{
 		$search = $this->searches_model->get_search($search_id);
@@ -65,7 +77,13 @@ protected $sites = array();
 		);
 		$this->load->view('searches_view', $data);
 	}
-	
+
+/**
+ * Delete a search
+ *
+ * @param integer search id to delete
+ * @return none
+ */
 	public function delete($search_id)
 	{
 		$search = $this->searches_model->get_search($search_id);
@@ -85,6 +103,13 @@ protected $sites = array();
 		$this->load->view('searches_view', $data);
 	}
 	
+
+/**
+ * Execute a search
+ *
+ * @param integer search id to execute
+ * @return none
+ */
 	public function execute($search_id)
 	{
 		$search = $this->searches_model->get_search($search_id);

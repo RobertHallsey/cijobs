@@ -45,6 +45,7 @@ const SITE_CODE = 'ND';
 		$fields['title'] = $this->get_text_content($xpath->query('//a[@data-tn-element="jobTitle"]'));
 		$fields['city'] = $this->get_text_content($xpath->query('//span[@class="location"]'));
 		$fields['employer'] = $this->get_text_content($xpath->query('//span[@class="company"]'));
+		$fields['agency'] = ''; // for compatibility with Simply Hired
 		$fields['description'] = $this->get_text_content($xpath->query('//span[@class="summary"]'));
 		$fields['url'] = self::SITE . self::SITE_URL . $xpath->query('//div[@data-jk]')->item(0)->getAttribute('data-jk');
 		$fields['date'] = date('Ymd');

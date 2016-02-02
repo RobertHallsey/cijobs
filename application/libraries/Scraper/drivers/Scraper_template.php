@@ -10,6 +10,10 @@
  */
 class Scraper_template extends CI_Driver {
 
+/**
+ * @param XPath object, $xpath, contains the entire page
+   @return string, must be the URL to the next page or ''
+ */
 	public function get_next_page_url($xpath)
 	{
 		$url = '';
@@ -17,12 +21,20 @@ class Scraper_template extends CI_Driver {
 		return $url;
 	}
 
+/**
+ * @param XPath object, $xpath, contains the entire page
+   @return NodeList, containing rows as queried or null
+ */
 	public function get_rows($xpath)
 	{
 		return $xpath->query('put-your-query-here');
 	}
 	
-	public function get_fields(    )
+/**
+ * @param XPath object, $xpath, contains only one row
+   @return string array, containing fields
+ */
+	public function get_fields($xpath)
 	{
 		$fields = array(
 			// 'field_1' => '',

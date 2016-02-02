@@ -73,6 +73,7 @@ class Scraper extends CI_Driver_Library {
 	/**
 	 * @param NodeList $nodelist An XPath query reesult
 	 * @param boolean $clean Clean field or not, defaults to true
+	 * @return string field
 	 */
 	public function get_text_content($nodelist, $clean = true)
 	{

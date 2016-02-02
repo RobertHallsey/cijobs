@@ -4,7 +4,7 @@
 
 <p>Please see the <code>README.MD</code> file for installation instructions.</p>
 
-<p>Having installed the application in CodeIgniter, you are ready to use it. It comes preconfigured to search three job boards, but keep in mind that, with the right driver files, it can automate any web search. Run the application in one browser tab, and in another tab, open Craigslist, Indeed, or Simply Hired. Once there, run a search for the jobs your want. The website will respond with the first page of your search results. Now look at your browser's address bar. That is the URL you will use for this search. Copy it to the clipboard and move to the tab where you're running Search Scraper.</p>
+<p>Having installed the application in CodeIgniter, you are ready to use it. It comes configured to search three job boards, but keep in mind that, with the right driver files, it can automate any web search. Run the application in one browser tab, and in another tab, open Craigslist, Indeed, or Simply Hired. Once there, run a search for the jobs your want. The website will respond with the first page of your search results. Now look at your browser's address bar. That is the URL you will use for this search. Copy it to the clipboard and move to the tab where you're running Search Scraper.</p>
 
 <p>Fill out the <code>Add a New Search</code> form. Give the search you're about to save a meaningful name, and select which site it's from. Then paste the URL you copied to the clipboard into the Search URL field. Now click Ok to save the search and watch it appear in the list of saved searches. You edit or delete the saved by clicking the links to the right.</p>
 
@@ -15,10 +15,6 @@
 <p>This is a real application. I use it myself. However, despite being very simple, it uses some advanced PHP and CodeIgniter features, so it can serve as a nice step up from the beginning tutorials. For this reason, the rest of the documentation delves into the application itself. I hope you find it useful.</p>
 
 <h2>The Application's Database</h2>
-
-<p>The database stores searches in a table called <code>searches</code>. A stored search consists of row id, name, starting search URL, and a foreign key pointing to a row in the <code>sites</code> table. Rows in the <code>sites</code> table consist of row id, site name, and driver name. A joined result consists of search id, search name, search URL, site id, site name, and site driver. The search row is joined to its site row so that the application can determine which driver to use in the search.</p>
-
-<p>Here is the SQL code in the file createdb.sql.</p>
 
 <pre><code>CREATE TABLE searches (
   id int(11) NOT NULL AUTO_INCREMENT,

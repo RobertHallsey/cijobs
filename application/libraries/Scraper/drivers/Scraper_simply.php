@@ -44,7 +44,7 @@ const SITE_CODE = 'SH';
 		$fields['title'] = $this->get_text_content($xpath->query('//h2'));
 		$fields['city'] =  $this->get_text_content($xpath->query('//span[@itemprop="jobLocation"]'));
 		$fields['employer'] =  $this->get_text_content($xpath->query('//span[@itemprop="name"]'));
-		$fields['description'] =  $this->get_text_content($xpath->query('//span[@itemprop="description"]'));
+		$fields['description'] =  $this->get_text_content($xpath->query('//p[@itemprop="description"]'));
 		$field = $this->get_text_content($xpath->query('//p[@class="serp-timesource"]'));
 		preg_match('/(?:Sponsored by | from )(.*?)$/', $field, $matches);
 		$fields['agency'] = $matches[1];

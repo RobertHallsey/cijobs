@@ -25,6 +25,7 @@ CREATE TABLE searches (
   site_id int(11) NOT NULL,
   name varchar(32) NOT NULL,
   url varchar(254) NOT NULL,
+  saveas varchar(32) NOT NULL,
   PRIMARY KEY (id)
 );
 
